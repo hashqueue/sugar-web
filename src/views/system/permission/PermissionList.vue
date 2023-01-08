@@ -8,8 +8,8 @@
     bordered
     :scroll="{ x: '100%', y: '100%' }"
     :pagination="{ hideOnSinglePage: true }"
-    :default-expand-all-rows="true"
   >
+    <!-- 默认展开table所有行  :default-expand-all-rows="true"  -->
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'is_menu'">
         <a-tag :color="record.is_menu ? 'geekblue' : 'green'">

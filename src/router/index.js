@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'
-import BasicLayout from '@/layout/BasicLayout.vue'
 import { userStore } from '@/stores/user'
 import { getUserPermissions } from '@/apis/permission'
 import { generateRouteData } from '@/utils/common'
@@ -20,7 +19,7 @@ const publicRoutes = [
   {
     path: '/',
     name: 'index',
-    component: BasicLayout,
+    component: () => import('@/layout/BasicLayout.vue'),
     redirect: '/dashboard',
     children: [
       {
