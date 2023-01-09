@@ -1,25 +1,21 @@
 <template>
   <a-button class="add-btn" type="primary" @click="createRole" v-permission="'新增角色'">新增角色</a-button>
-  <a-table
-    :columns="columns"
-    :data-source="dataList"
-    row-key="id"
-    bordered
-    :pagination="paginationData"
-    @change="onPageChange"
-  >
-    <template #bodyCell="{ column, record }">
+  <standard-table :data-source="dataList" :columns="columns" :row-key="'id'" @on-page-change="onPageChange">
+    <template #action="{ column, record }">
+      <!--  record: 具名插槽作用域传值(父插槽内容中获取子组件数据record)  -->
       <template v-if="column.key === 'action'">
         <span>
           <a @click="updateRole(record)" v-permission="'修改角色'">修改</a>
           <a-divider type="vertical" />
           <a @click="setPermissions(record)" v-permission="'修改角色部分信息'">设置权限</a>
           <a-divider type="vertical" />
-          <a @click="deleteRole(record.id)" v-permission="'删除角色'">删除</a>
+          <a-popconfirm title="确定删除该角色吗？" ok-text="确定" cancel-text="取消" @confirm="deleteRole(record.id)">
+            <a v-permission="'删除角色'">删除</a>
+          </a-popconfirm>
         </span>
       </template>
     </template>
-  </a-table>
+  </standard-table>
   <role-create-update-form
     :visible="visible"
     :title="title"
@@ -27,14 +23,6 @@
     @close-modal="closeModal"
     @get-latest-role-list="getLatestRoleList"
   />
-  <a-modal v-model:visible="delVisible" title="提示" @ok="handleDeleteOk">
-    <p>
-      <exclamation-circle-two-tone
-        :style="{ fontSize: '17px', marginRight: '10px' }"
-        two-tone-color="#FF0000"
-      />此操作将删除该角色下所有的数据，是否继续？
-    </p>
-  </a-modal>
   <a-drawer
     v-model:visible="drawerVisible"
     :title="drawerTitle"
@@ -74,6 +62,7 @@ import { deleteRoleDetail, getRoleList, getRoleDetail, updateRoleWithPatch } fro
 import { generateObjectTreeData } from '@/utils/common'
 import { getPermissionTreeList } from '@/apis/permission'
 import RoleCreateUpdateForm from './RoleCreateUpdateForm.vue'
+import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
 const permissionTreeData = ref([])
@@ -84,8 +73,6 @@ const title = ref('新增角色')
 const drawerTitle = ref('')
 const roleId = ref(null)
 const setPermissionsRoleId = ref(null)
-const delVisible = ref(false)
-const delRoleId = ref(undefined)
 const paginationData = ref({})
 const columns = [
   {
@@ -131,7 +118,7 @@ getRoleListData()
 const getLatestRoleList = () => {
   getRoleListData()
 }
-const onPageChange = (pagination, filters, sorter, { currentDataSource }) => {
+const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current
   params.size = pagination.pageSize
@@ -192,16 +179,10 @@ const submitPermissions = () => {
     drawerVisible.value = false
   })
 }
-const handleDeleteOk = () => {
-  deleteRoleDetail(delRoleId.value).then(() => {
-    delVisible.value = false
+const deleteRole = (roleId) => {
+  deleteRoleDetail(roleId).then(() => {
     getRoleListData()
   })
-}
-const deleteRole = (roleId) => {
-  // console.log(roleId)
-  delVisible.value = true
-  delRoleId.value = roleId
 }
 </script>
 

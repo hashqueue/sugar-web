@@ -1,16 +1,13 @@
 <template>
   <a-button class="add-btn" type="primary" @click="createRootPermission" v-permission="'新增权限'">新增根权限</a-button>
-  <a-table
-    v-if="dataList.length"
-    :columns="columns"
+  <standard-table
     :data-source="dataList"
-    row-key="id"
-    bordered
+    :columns="columns"
     :scroll="{ x: '100%', y: '100%' }"
+    :row-key="'id'"
     :pagination="{ hideOnSinglePage: true }"
   >
-    <!-- 默认展开table所有行  :default-expand-all-rows="true"  -->
-    <template #bodyCell="{ column, record }">
+    <template #action="{ column, record }">
       <template v-if="column.key === 'is_menu'">
         <a-tag :color="record.is_menu ? 'geekblue' : 'green'">
           {{ record.is_menu ? '菜单' : 'API' }}
@@ -40,11 +37,18 @@
           <a-divider type="vertical" />
           <a @click="updatePermission(record)" v-permission="'修改权限'">修改</a>
           <a-divider type="vertical" />
-          <a @click="deletePermission(record.id)" v-permission="'删除权限'">删除</a>
+          <a-popconfirm
+            title="确定删除该权限吗？"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="deletePermission(record.id)"
+          >
+            <a v-permission="'删除权限'">删除</a>
+          </a-popconfirm>
         </span>
       </template>
     </template>
-  </a-table>
+  </standard-table>
   <permission-create-update-form
     :visible="visible"
     :title="title"
@@ -52,25 +56,16 @@
     @close-modal="closeModal"
     @get-latest-permission-list="getLatestPermissionList"
   />
-  <a-modal v-model:visible="delVisible" title="提示" @ok="handleDeleteOk">
-    <p>
-      <exclamation-circle-two-tone
-        :style="{ fontSize: '17px', marginRight: '10px' }"
-        two-tone-color="#FF0000"
-      />此操作将删除该权限下所有的数据，是否继续？
-    </p>
-  </a-modal>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { getPermissionTreeList, deletePermissionDetail } from '@/apis/permission'
 import PermissionCreateUpdateForm from './PermissionCreateUpdateForm.vue'
+import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
 const visible = ref(false)
-const delVisible = ref(false)
-const delPermissionId = ref(undefined)
 const title = ref('新增根权限')
 const permissionId = ref(null)
 
@@ -165,16 +160,10 @@ const updatePermission = (record) => {
   title.value = '修改权限'
   visible.value = true
 }
-const handleDeleteOk = () => {
-  deletePermissionDetail(delPermissionId.value).then(() => {
-    delVisible.value = false
+const deletePermission = (permissionId) => {
+  deletePermissionDetail(permissionId).then(() => {
     getPermissionTreeListData()
   })
-}
-const deletePermission = (permissionId) => {
-  // console.log(permissionId)
-  delVisible.value = true
-  delPermissionId.value = permissionId
 }
 </script>
 

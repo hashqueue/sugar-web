@@ -1,19 +1,20 @@
 <template>
   <a-button class="add-btn" type="primary" @click="createUser" v-permission="'新增用户'">新增用户</a-button>
-  <a-table
-    :columns="columns"
+  <standard-table
     :data-source="dataList"
-    row-key="id"
-    bordered
+    :columns="columns"
+    :row-key="'id'"
     :pagination="paginationData"
-    @change="onPageChange"
+    @on-page-change="onPageChange"
   >
-    <template #bodyCell="{ column, record }">
+    <template #action="{ column, record }">
       <template v-if="column.key === 'action'">
         <span>
           <a @click="updateUser(record)" v-permission="'修改用户'">修改</a>
           <a-divider type="vertical" />
-          <a @click="deleteUser(record.id)" v-permission="'删除用户'">删除</a>
+          <a-popconfirm title="确定删除该用户吗？" ok-text="确定" cancel-text="取消" @confirm="deleteUser(record.id)">
+            <a v-permission="'删除用户'">删除</a>
+          </a-popconfirm>
         </span>
       </template>
       <template v-if="column.key === 'roles'">
@@ -22,7 +23,7 @@
         </template>
       </template>
     </template>
-  </a-table>
+  </standard-table>
   <user-create-update-form
     :visible="visible"
     :title="title"
@@ -30,27 +31,18 @@
     @close-modal="closeModal"
     @get-latest-user-list="getLatestUserList"
   />
-  <a-modal v-model:visible="delVisible" title="提示" @ok="handleDeleteOk">
-    <p>
-      <exclamation-circle-two-tone
-        :style="{ fontSize: '17px', marginRight: '10px' }"
-        two-tone-color="#FF0000"
-      />此操作将删除该用户下所有的数据，是否继续？
-    </p>
-  </a-modal>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { deleteUserDetail, getUserList } from '@/apis/user'
 import UserCreateUpdateForm from './UserCreateUpdateForm.vue'
+import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
 const visible = ref(false)
 const title = ref('新增用户')
 const userId = ref(null)
-const delVisible = ref(false)
-const delUserId = ref(undefined)
 const paginationData = ref({})
 const columns = [
   {
@@ -106,7 +98,7 @@ getUserListData()
 const getLatestUserList = () => {
   getUserListData()
 }
-const onPageChange = (pagination, filters, sorter, { currentDataSource }) => {
+const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current
   params.size = pagination.pageSize
@@ -136,16 +128,10 @@ const updateUser = (record) => {
   title.value = '修改用户'
   visible.value = true
 }
-const handleDeleteOk = () => {
-  deleteUserDetail(delUserId.value).then(() => {
-    delVisible.value = false
+const deleteUser = (userId) => {
+  deleteUserDetail(userId).then(() => {
     getUserListData()
   })
-}
-const deleteUser = (userId) => {
-  // console.log(userId)
-  delVisible.value = true
-  delUserId.value = userId
 }
 </script>
 

@@ -2,16 +2,14 @@
   <a-button class="add-btn" type="primary" @click="createRootOrganization" v-permission="'新增部门'"
     >新增根组织架构</a-button
   >
-  <a-table
-    v-if="dataList.length"
-    :columns="columns"
+  <standard-table
     :data-source="dataList"
-    row-key="id"
-    bordered
+    :columns="columns"
+    :row-key="'id'"
     :default-expand-all-rows="true"
     :pagination="{ hideOnSinglePage: true }"
   >
-    <template #bodyCell="{ column, record }">
+    <template #action="{ column, record }">
       <template v-if="column.key === 'type'">
         <a-tag :color="record.type === 'company' ? 'geekblue' : 'green'">
           {{ record.type === 'company' ? '公司' : '部门' }}
@@ -23,11 +21,18 @@
           <a-divider type="vertical" />
           <a @click="updateOrganization(record)" v-permission="'修改部门'">修改</a>
           <a-divider type="vertical" />
-          <a @click="deleteOrganization(record.id)" v-permission="'删除部门'">删除</a>
+          <a-popconfirm
+            title="确定删除该部门吗？"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="deleteOrganization(record.id)"
+          >
+            <a v-permission="'删除部门'">删除</a>
+          </a-popconfirm>
         </span>
       </template>
     </template>
-  </a-table>
+  </standard-table>
   <organization-create-update-form
     :visible="visible"
     :title="title"
@@ -35,25 +40,16 @@
     @close-modal="closeModal"
     @get-latest-organization-list="getLatestOrganizationList"
   />
-  <a-modal v-model:visible="delVisible" title="提示" @ok="handleDeleteOk">
-    <p>
-      <exclamation-circle-two-tone
-        :style="{ fontSize: '17px', marginRight: '10px' }"
-        two-tone-color="#FF0000"
-      />此操作将删除该组织架构下所有的数据，是否继续？
-    </p>
-  </a-modal>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { getOrganizationTreeList, deleteOrganizationDetail } from '@/apis/organization'
 import OrganizationCreateUpdateForm from './OrganizationCreateUpdateForm.vue'
+import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
 const visible = ref(false)
-const delVisible = ref(false)
-const delOrganizationId = ref(undefined)
 const title = ref('新增根组织架构')
 const organizationId = ref(null)
 
@@ -111,16 +107,10 @@ const updateOrganization = (record) => {
   title.value = '修改组织架构'
   visible.value = true
 }
-const handleDeleteOk = () => {
-  deleteOrganizationDetail(delOrganizationId.value).then(() => {
-    delVisible.value = false
+const deleteOrganization = (organizationId) => {
+  deleteOrganizationDetail(organizationId).then(() => {
     getOrganizationTreeListData()
   })
-}
-const deleteOrganization = (organizationId) => {
-  // console.log(organizationId)
-  delVisible.value = true
-  delOrganizationId.value = organizationId
 }
 </script>
 
