@@ -27,7 +27,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { createRole, updateRole, getRoleDetail } from '@/apis/role'
+import { createRole, updateRole, getRoleDetail } from '@/apis/system/role'
 
 const props = defineProps({
   roleId: {

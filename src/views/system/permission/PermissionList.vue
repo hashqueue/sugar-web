@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getPermissionTreeList, deletePermissionDetail } from '@/apis/permission'
+import { getPermissionTreeList, deletePermissionDetail } from '@/apis/system/permission'
 import PermissionCreateUpdateForm from './PermissionCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 

@@ -58,9 +58,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { deleteRoleDetail, getRoleList, getRoleDetail, updateRoleWithPatch } from '@/apis/role'
+import { deleteRoleDetail, getRoleList, getRoleDetail, updateRoleWithPatch } from '@/apis/system/role'
 import { generateObjectTreeData } from '@/utils/common'
-import { getPermissionTreeList } from '@/apis/permission'
+import { getPermissionTreeList } from '@/apis/system/permission'
 import RoleCreateUpdateForm from './RoleCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 

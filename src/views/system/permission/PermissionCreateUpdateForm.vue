@@ -51,7 +51,6 @@
           :default-active-first-option="false"
           :show-arrow="true"
           :filter-option="false"
-          :not-found-content="null"
           :options="parentOptions"
           @search="handleSearch"
           @change="handleChange"
@@ -63,7 +62,8 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { getPermissionList, createPermission, updatePermission, getPermissionDetail } from '@/apis/permission'
+import { getPermissionList, createPermission, updatePermission, getPermissionDetail } from '@/apis/system/permission'
+import { isSelectOptionsIncludeItemData } from '@/utils/common'
 
 const props = defineProps({
   permissionId: {
@@ -131,13 +131,26 @@ const createUpdateRules = {
   url_path: [{ max: 256, trigger: 'change', message: '请求路径不能多于256位!' }]
 }
 
+getPermissionList({ page: 1, size: 50 }).then((res) => {
+  let currentOrgans = []
+  for (const originOrgan of res.results) {
+    currentOrgans.push({
+      label: `${originOrgan.title} - ${originOrgan.is_menu ? '菜单' : 'API'}`,
+      value: originOrgan.id
+    })
+  }
+  parentOptions.value = currentOrgans
+})
+
 watch(
   () => props.visible,
   (newValue, oldValue) => {
     if (props.title !== '新增根权限') {
       getPermissionDetail(props.permissionId).then((res) => {
         if (props.title === '添加子权限') {
-          parentOptions.value = [{ label: res.title, value: res.id }]
+          if (!isSelectOptionsIncludeItemData(parentOptions.value, res.id, 'value')) {
+            parentOptions.value.push({ label: `${res.title} - ${res.is_menu ? '菜单' : 'API'}`, value: res.id })
+          }
           createUpdateForm.value = {
             title: '',
             is_menu: true,
@@ -152,7 +165,12 @@ watch(
           }
         } else if (props.title === '修改权限') {
           if (res.parent !== null) {
-            parentOptions.value = [{ label: res.parent.title, value: res.parent.id }]
+            if (!isSelectOptionsIncludeItemData(parentOptions.value, res.parent.id, 'value')) {
+              parentOptions.value.push({
+                label: `${res.parent.title} - ${res.parent.is_menu ? '菜单' : 'API'}`,
+                value: res.parent.id
+              })
+            }
             createUpdateForm.value = {
               title: res.title,
               is_menu: res.is_menu,
@@ -186,17 +204,18 @@ watch(
 )
 const handleSearch = (val) => {
   getPermissionList({ title: val }).then((res) => {
-    let originPermissions = res.results
-    let currentPermissions = []
-    for (const originPermission of originPermissions) {
-      currentPermissions.push({ label: originPermission.title, value: originPermission.id })
+    let tmp = []
+    for (const originPermission of res.results) {
+      tmp.push({
+        label: `${originPermission.title} - ${originPermission.is_menu ? '菜单' : 'API'}`,
+        value: originPermission.id
+      })
     }
-    parentOptions.value = currentPermissions
+    parentOptions.value = tmp
   })
 }
 
 const handleChange = (val) => {
-  // console.log(val)
   createUpdateForm.value.parent = val
 }
 const onOk = () => {

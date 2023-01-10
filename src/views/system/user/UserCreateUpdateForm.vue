@@ -45,7 +45,6 @@
       <a-form-item name="department" label="部门">
         <a-tree-select
           v-model:value="createUpdateForm.department"
-          show-search
           style="width: 100%"
           :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
           placeholder="请选择部门"
@@ -61,10 +60,10 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { createUser, updateUser, getUserDetail } from '@/apis/user'
-import { getRoleList } from '@/apis/role'
+import { createUser, updateUser, getUserDetail } from '@/apis/system/user'
+import { getRoleList } from '@/apis/system/role'
 import { generateObjectTreeData } from '@/utils/common'
-import { getOrganizationTreeList } from '@/apis/organization'
+import { getOrganizationTreeList } from '@/apis/system/organization'
 
 const props = defineProps({
   userId: {

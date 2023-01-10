@@ -35,7 +35,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { deleteUserDetail, getUserList } from '@/apis/user'
+import { deleteUserDetail, getUserList } from '@/apis/system/user'
 import UserCreateUpdateForm from './UserCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 

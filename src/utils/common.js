@@ -114,3 +114,13 @@ export const generateRouteData = (originDataArr) => {
   // console.log(treeMenuData)
   return treeMenuData
 }
+
+export const isSelectOptionsIncludeItemData = (originOptions, data, OriginOptionsKey) => {
+  let result = false
+  for (const originOption of originOptions) {
+    if (data === originOption[OriginOptionsKey]) {
+      result = true
+    }
+  }
+  return result
+}

@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'
 import { userStore } from '@/stores/user'
-import { getUserPermissions } from '@/apis/permission'
+import { getUserPermissions } from '@/apis/system/permission'
 import { generateRouteData } from '@/utils/common'
 
 const routeWhiteList = ['/login', '/404', '/403', '/500', '/userProfile', '/dashboard']

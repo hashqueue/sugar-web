@@ -30,7 +30,6 @@
           :default-active-first-option="false"
           :show-arrow="true"
           :filter-option="false"
-          :not-found-content="null"
           :options="parentOptions"
           @search="handleSearch"
           @change="handleChange"
@@ -42,7 +41,13 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { getOrganizationList, createOrganization, updateOrganization, getOrganizationDetail } from '@/apis/organization'
+import {
+  getOrganizationList,
+  createOrganization,
+  updateOrganization,
+  getOrganizationDetail
+} from '@/apis/system/organization'
+import { isSelectOptionsIncludeItemData } from '@/utils/common'
 
 const props = defineProps({
   organizationId: {
@@ -86,13 +91,23 @@ const createUpdateRules = {
   type: [{ required: true, trigger: 'change', message: '组织架构类型不能为空!' }]
 }
 
+getOrganizationList({ page: 1, size: 50 }).then((res) => {
+  let currentOrgans = []
+  for (const originOrgan of res.results) {
+    currentOrgans.push({ label: originOrgan.name, value: originOrgan.id })
+  }
+  parentOptions.value = currentOrgans
+})
+
 watch(
   () => props.visible,
   (newValue, oldValue) => {
     if (props.title !== '新增根组织架构') {
       getOrganizationDetail(props.organizationId).then((res) => {
         if (props.title === '添加子组织架构') {
-          parentOptions.value = [{ label: res.name, value: res.id }]
+          if (!isSelectOptionsIncludeItemData(parentOptions.value, res.id, 'value')) {
+            parentOptions.value.push({ label: res.name, value: res.id })
+          }
           createUpdateForm.value = {
             name: '',
             type: undefined,
@@ -100,7 +115,9 @@ watch(
           }
         } else if (props.title === '修改组织架构') {
           if (res.parent !== null) {
-            parentOptions.value = [{ label: res.parent.name, value: res.parent.id }]
+            if (!isSelectOptionsIncludeItemData(parentOptions.value, res.parent.id, 'value')) {
+              parentOptions.value.push({ label: res.parent.name, value: res.parent.id })
+            }
             createUpdateForm.value = {
               name: res.name,
               type: res.type,
@@ -120,9 +137,8 @@ watch(
 )
 const handleSearch = (val) => {
   getOrganizationList({ name: val }).then((res) => {
-    let originOrgans = res.results
     let currentOrgans = []
-    for (const originOrgan of originOrgans) {
+    for (const originOrgan of res.results) {
       currentOrgans.push({ label: originOrgan.name, value: originOrgan.id })
     }
     parentOptions.value = currentOrgans

@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getOrganizationTreeList, deleteOrganizationDetail } from '@/apis/organization'
+import { getOrganizationTreeList, deleteOrganizationDetail } from '@/apis/system/organization'
 import OrganizationCreateUpdateForm from './OrganizationCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 

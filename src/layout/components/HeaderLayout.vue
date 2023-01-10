@@ -37,7 +37,7 @@ import { ref } from 'vue'
 import { removeAllItem } from '@/utils/storage'
 import MenuLayout from './menu/MenuLayout.vue'
 import ScreenfullView from '@/components/ScreenfullView.vue'
-import { getUserProfile } from '@/apis/user'
+import { getUserProfile } from '@/apis/system/user'
 import { userStore } from '@/stores/user'
 
 const router = useRouter()

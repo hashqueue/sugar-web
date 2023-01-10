@@ -112,7 +112,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { EditOutlined, UnlockOutlined } from '@ant-design/icons-vue'
-import { getUserProfile, resetUserPassword, updateUserProfile } from '@/apis/user'
+import { getUserProfile, resetUserPassword, updateUserProfile } from '@/apis/system/user'
 import { removeAllItem } from '@/utils/storage'
 
 const userInfo = ref(null)
