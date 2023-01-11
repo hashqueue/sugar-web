@@ -21,7 +21,7 @@
     :title="title"
     :role-id="roleId"
     @close-modal="closeModal"
-    @get-latest-role-list="getLatestRoleList"
+    @get-latest-role-list="getRoleListData"
   />
   <a-drawer
     v-model:visible="drawerVisible"
@@ -115,9 +115,6 @@ const getRoleListData = () => {
   })
 }
 getRoleListData()
-const getLatestRoleList = () => {
-  getRoleListData()
-}
 const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current

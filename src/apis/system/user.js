@@ -52,6 +52,14 @@ export const getUserList = (params) => {
     params
   })
 }
+
+export const getAllUserList = () => {
+  return request({
+    url: `/system/users/all/`,
+    method: 'GET'
+  })
+}
+
 export const deleteUserDetail = (userId) => {
   return request({
     url: `/system/users/${userId}/`,

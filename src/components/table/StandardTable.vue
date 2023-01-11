@@ -6,6 +6,7 @@
     :scroll="scroll"
     bordered
     :row-key="rowKey"
+    :row-selection="rowSelection"
     :pagination="pagination"
     @change="onPageChange"
     :default-expand-all-rows="defaultExpandAllRows"
@@ -30,6 +31,7 @@ const props = defineProps({
     type: Object,
     required: false
   },
+  // x,y轴是否可滚动
   scroll: {
     type: Object,
     required: false
@@ -43,6 +45,11 @@ const props = defineProps({
     type: String,
     default: 'id',
     required: false
+  },
+  rowSelection: {
+    type: Object,
+    required: false,
+    default: undefined
   }
 })
 const emit = defineEmits(['onPageChange'])

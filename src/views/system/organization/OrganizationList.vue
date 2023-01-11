@@ -38,7 +38,7 @@
     :title="title"
     :organization-id="organizationId"
     @close-modal="closeModal"
-    @get-latest-organization-list="getLatestOrganizationList"
+    @get-latest-organization-list="getOrganizationTreeListData"
   />
 </template>
 
@@ -93,9 +93,6 @@ const createRootOrganization = () => {
 const closeModal = () => {
   title.value = '新增根组织架构'
   visible.value = false
-}
-const getLatestOrganizationList = () => {
-  getOrganizationTreeListData()
 }
 const createSubOrganization = (record) => {
   organizationId.value = record.id

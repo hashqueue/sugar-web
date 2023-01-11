@@ -21,12 +21,10 @@
       <a-form-item name="owner" label="项目负责人">
         <a-select
           v-model:value="createUpdateForm.owner"
-          show-search
-          placeholder="请选择项目负责人(输入用户名以进行搜索)"
+          placeholder="请选择项目负责人"
           :show-arrow="true"
           :filter-option="false"
           :options="ownerOptions"
-          @search="handleOwnerSearch"
           @change="handleOwnerChange"
         ></a-select>
       </a-form-item>
@@ -42,10 +40,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { createProject, updateProject, getProjectDetail } from '@/apis/pm/project'
-import { getUserList } from '@/apis/system/user'
-import { isSelectOptionsIncludeItemData } from '@/utils/common'
 
 const props = defineProps({
   projectId: {
@@ -59,23 +55,26 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+  allUserList: {
+    type: Array,
+    required: true
   }
 })
 const emit = defineEmits(['closeModal', 'getLatestProjectList'])
-const ownerOptions = ref([])
 const statusOptions = [
   { value: 0, label: '未开始' },
   { value: 1, label: '进行中' },
   { value: 2, label: '已完成' }
 ]
-
-getUserList({ page: 1, size: 50 }).then((res) => {
+const ownerOptions = computed(() => {
   const tmpOwnerArr = []
-  for (const item of res.results) {
+  for (const item of props.allUserList) {
     tmpOwnerArr.push({ value: item.username, label: `${item.username} - ${item.name}` })
   }
-  ownerOptions.value = tmpOwnerArr
+  return tmpOwnerArr
 })
+
 const createUpdateForm = ref({
   name: '',
   owner: undefined,
@@ -97,9 +96,6 @@ watch(
   (newValue, oldValue) => {
     if (props.title === '修改项目') {
       getProjectDetail(props.projectId).then((res) => {
-        if (!isSelectOptionsIncludeItemData(ownerOptions.value, res.owner, 'value')) {
-          ownerOptions.value.push({ label: `${res.owner} - ${res.owner_name}`, value: res.owner })
-        }
         createUpdateForm.value = {
           name: res.name,
           status: res.status,
@@ -109,16 +105,6 @@ watch(
     }
   }
 )
-
-const handleOwnerSearch = (val) => {
-  getUserList({ username: val }).then((res) => {
-    let tmp = []
-    for (const item of res.results) {
-      tmp.push({ label: `${item.username} - ${item.name}`, value: item.username })
-    }
-    ownerOptions.value = tmp
-  })
-}
 
 const handleOwnerChange = (val) => {
   // console.log(val)

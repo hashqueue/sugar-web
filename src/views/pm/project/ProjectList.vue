@@ -12,6 +12,8 @@
         <span>
           <a @click="updateProject(record)" v-permission="'修改项目'">修改</a>
           <a-divider type="vertical" />
+          <a @click="addMembers(record)" v-permission="'修改项目部分信息'">添加项目成员</a>
+          <a-divider type="vertical" />
           <a-popconfirm
             title="确定删除该项目吗？"
             ok-text="确定"
@@ -33,23 +35,40 @@
     :visible="visible"
     :title="title"
     :project-id="projectId"
+    :all-user-list="allUserDataList"
     @close-modal="closeModal"
-    @get-latest-project-list="getLatestProjectList"
+    @get-latest-project-list="getProjectListData"
   />
+  <a-drawer v-model:visible="drawerVisible" :title="drawerTitle" width="50%" :mask-closable="false">
+    <standard-table
+      :row-key="'id'"
+      :data-source="allUserDataList"
+      :row-selection="{ selectedRowKeys: memberSelectedRowKeys, onChange: onSelectChange }"
+      :columns="allUserColumns"
+      :pagination="{ hideOnSinglePage: true }"
+    ></standard-table>
+    <a-button @click="submitAddMembers" type="primary" v-permission="'修改角色部分信息'">提交</a-button>
+  </a-drawer>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { deleteProjectDetail, getProjectList } from '@/apis/pm/project'
+import { deleteProjectDetail, getProjectList, updateProjectWithPatch, getProjectDetail } from '@/apis/pm/project'
 import ProjectCreateUpdateForm from './ProjectCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
+import { getAllUserList } from '@/apis/system/user'
 
 const dataList = ref([])
+const allUserDataList = ref([])
+const drawerVisible = ref(false)
+const drawerTitle = ref('')
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
 const visible = ref(false)
 const title = ref('新增项目')
 const projectId = ref(null)
+const addMembersProjectId = ref(null)
 const paginationData = ref({})
+const memberSelectedRowKeys = ref([])
 const columns = [
   {
     title: 'ID',
@@ -96,6 +115,32 @@ const columns = [
     key: 'action'
   }
 ]
+const allUserColumns = [
+  {
+    title: '用户名',
+    dataIndex: 'username',
+    key: 'username'
+  },
+  {
+    title: '姓名',
+    dataIndex: 'name',
+    key: 'name'
+  },
+  {
+    title: '邮箱',
+    dataIndex: 'email',
+    key: 'email'
+  },
+  {
+    title: '职位',
+    dataIndex: 'position',
+    key: 'position'
+  }
+]
+
+getAllUserList().then((res) => {
+  allUserDataList.value = res.results
+})
 
 const getProjectListData = () => {
   getProjectList().then((res) => {
@@ -111,8 +156,25 @@ const getProjectListData = () => {
   })
 }
 getProjectListData()
-const getLatestProjectList = () => {
-  getProjectListData()
+const addMembers = (record) => {
+  getProjectDetail(record.id).then((res) => {
+    const tmp = []
+    for (const member of res.members) {
+      tmp.push(member.id)
+    }
+    memberSelectedRowKeys.value = tmp
+    drawerTitle.value = `为项目 ${record.name} 添加成员`
+    drawerVisible.value = true
+    addMembersProjectId.value = record.id
+  })
+}
+const submitAddMembers = () => {
+  updateProjectWithPatch(addMembersProjectId.value, { members: memberSelectedRowKeys.value }).then(() => {
+    drawerVisible.value = false
+  })
+}
+const onSelectChange = (selectedRowKeys, selectedRows) => {
+  memberSelectedRowKeys.value = selectedRowKeys
 }
 const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}

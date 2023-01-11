@@ -54,7 +54,7 @@
     :title="title"
     :permission-id="permissionId"
     @close-modal="closeModal"
-    @get-latest-permission-list="getLatestPermissionList"
+    @get-latest-permission-list="getPermissionTreeListData"
   />
 </template>
 
@@ -146,9 +146,6 @@ const createRootPermission = () => {
 const closeModal = () => {
   title.value = '新增根权限'
   visible.value = false
-}
-const getLatestPermissionList = () => {
-  getPermissionTreeListData()
 }
 const createSubPermission = (record) => {
   permissionId.value = record.id

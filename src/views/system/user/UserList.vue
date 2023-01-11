@@ -29,7 +29,7 @@
     :title="title"
     :user-id="userId"
     @close-modal="closeModal"
-    @get-latest-user-list="getLatestUserList"
+    @get-latest-user-list="getUserListData"
   />
 </template>
 
@@ -95,9 +95,6 @@ const getUserListData = () => {
   })
 }
 getUserListData()
-const getLatestUserList = () => {
-  getUserListData()
-}
 const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current

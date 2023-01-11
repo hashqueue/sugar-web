@@ -13,7 +13,7 @@
   </a-row>
   <a-row type="flex" justify="space-between">
     <a-col :span="12">
-      <a-card title="代码块-Python" class="card">
+      <a-card title="Python" class="card">
         <a-switch
           style="margin-bottom: 15px"
           v-model:checked="pythonEditorOptions.readOnly"
@@ -109,20 +109,7 @@ const pieOption = {
     }
   ]
 }
-const pythonCode = ref(
-  'class Person(object):\n' +
-    '    def __new__(cls, *args, **kwargs):\n' +
-    '        print("__new__方法执行")\n' +
-    '        # return object.__new__(cls)\n' +
-    '\n' +
-    '    def __init__(self, name, age):\n' +
-    '        print("__init__方法执行")\n' +
-    '        self.name = name\n' +
-    '        self.age = age\n' +
-    '\n' +
-    '\n' +
-    'p1 = Person("p", 23)\n'
-)
+const pythonCode = ref("class Meta:\n    model = 'User'\n    fields = ('results', 'count')\n\n")
 const jsonCode = ref(
   '{\n' +
     '  "username": "test",\n' +
