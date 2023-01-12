@@ -4,6 +4,7 @@
     :data-source="dataList"
     :columns="columns"
     :row-key="'id'"
+    :loading="tableLoading"
     :pagination="paginationData"
     @on-page-change="onPageChange"
   >
@@ -13,6 +14,8 @@
           <a @click="updateProject(record)" v-permission="'修改项目'">修改</a>
           <a-divider type="vertical" />
           <a @click="addMembers(record)" v-permission="'修改项目部分信息'">添加项目成员</a>
+          <a-divider type="vertical" />
+          <a @click="viewProjectDetail(record)" v-permission="'查询项目详情'">详情</a>
           <a-divider type="vertical" />
           <a-popconfirm
             title="确定删除该项目吗？"
@@ -41,7 +44,6 @@
   />
   <a-drawer v-model:visible="drawerVisible" :title="drawerTitle" width="50%" :mask-closable="false">
     <standard-table
-      :loading="tableLoading"
       :row-key="'id'"
       :data-source="allUserDataList"
       :row-selection="{ selectedRowKeys: memberSelectedRowKeys, onChange: onSelectChange }"
@@ -170,6 +172,11 @@ const addMembers = (record) => {
     addMembersProjectId.value = record.id
   })
 }
+
+const viewProjectDetail = (record) => {
+  console.log(record.id)
+}
+
 const submitAddMembers = () => {
   updateProjectWithPatch(addMembersProjectId.value, { members: memberSelectedRowKeys.value }).then(() => {
     drawerVisible.value = false
