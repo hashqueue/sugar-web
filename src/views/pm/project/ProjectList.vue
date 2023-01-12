@@ -41,6 +41,7 @@
   />
   <a-drawer v-model:visible="drawerVisible" :title="drawerTitle" width="50%" :mask-closable="false">
     <standard-table
+      :loading="tableLoading"
       :row-key="'id'"
       :data-source="allUserDataList"
       :row-selection="{ selectedRowKeys: memberSelectedRowKeys, onChange: onSelectChange }"
@@ -66,6 +67,7 @@ const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
 const visible = ref(false)
 const title = ref('新增项目')
 const projectId = ref(null)
+const tableLoading = ref(false)
 const addMembersProjectId = ref(null)
 const paginationData = ref({})
 const memberSelectedRowKeys = ref([])
@@ -180,8 +182,8 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current
   params.size = pagination.pageSize
+  tableLoading.value = true
   getProjectList(params).then((res) => {
-    // console.log(pagination)
     dataList.value = res.results
     paginationData.value = {
       total: res.count,
@@ -191,6 +193,7 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 const createProject = () => {

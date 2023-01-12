@@ -4,6 +4,7 @@
     :data-source="dataList"
     :columns="columns"
     :row-key="'id'"
+    :loading="tableLoading"
     :pagination="paginationData"
     @on-page-change="onPageChange"
   >
@@ -40,6 +41,7 @@ import UserCreateUpdateForm from './UserCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
+const tableLoading = ref(false)
 const visible = ref(false)
 const title = ref('新增用户')
 const userId = ref(null)
@@ -99,8 +101,8 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current
   params.size = pagination.pageSize
+  tableLoading.value = true
   getUserList(params).then((res) => {
-    // console.log(pagination)
     dataList.value = res.results
     paginationData.value = {
       total: res.count,
@@ -110,6 +112,7 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 const createUser = () => {

@@ -1,6 +1,12 @@
 <template>
   <a-button class="add-btn" type="primary" @click="createRole" v-permission="'新增角色'">新增角色</a-button>
-  <standard-table :data-source="dataList" :columns="columns" :row-key="'id'" @on-page-change="onPageChange">
+  <standard-table
+    :data-source="dataList"
+    :loadin="tableLoading"
+    :columns="columns"
+    :row-key="'id'"
+    @on-page-change="onPageChange"
+  >
     <template #action="{ column, record }">
       <!--  record: 具名插槽作用域传值(父插槽内容中获取子组件数据record)  -->
       <template v-if="column.key === 'action'">
@@ -71,6 +77,7 @@ const visible = ref(false)
 const drawerVisible = ref(false)
 const title = ref('新增角色')
 const drawerTitle = ref('')
+const tableLoading = ref(false)
 const roleId = ref(null)
 const setPermissionsRoleId = ref(null)
 const paginationData = ref({})
@@ -119,8 +126,8 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   const params = {}
   params.page = pagination.current
   params.size = pagination.pageSize
+  tableLoading.value = true
   getRoleList(params).then((res) => {
-    // console.log(pagination)
     dataList.value = res.results
     paginationData.value = {
       total: res.count,
@@ -130,6 +137,7 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 const createRole = () => {

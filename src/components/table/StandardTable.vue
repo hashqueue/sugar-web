@@ -8,6 +8,7 @@
     :row-key="rowKey"
     :row-selection="rowSelection"
     :pagination="pagination"
+    :loading="loading"
     @change="onPageChange"
     :default-expand-all-rows="defaultExpandAllRows"
   >
@@ -50,6 +51,11 @@ const props = defineProps({
     type: Object,
     required: false,
     default: undefined
+  },
+  loading: {
+    type: Boolean,
+    required: false,
+    default: false
   }
 })
 const emit = defineEmits(['onPageChange'])
