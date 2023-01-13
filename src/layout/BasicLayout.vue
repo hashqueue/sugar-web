@@ -2,9 +2,9 @@
   <a-layout class="root-container">
     <a-layout-header class="header-container">
       <HeaderLayout />
+      <BreadcrumbLayout />
     </a-layout-header>
     <a-layout-content class="main-container">
-      <BreadcrumbLayout class="my-breadcrumb" />
       <ContentLayout />
     </a-layout-content>
   </a-layout>
@@ -30,10 +30,7 @@ import BreadcrumbLayout from './components/BreadcrumbLayout.vue'
 }
 .main-container {
   padding: 0 16px;
-  margin-top: 64px;
+  margin-top: 100px;
   overflow-y: auto;
-}
-.my-breadcrumb {
-  margin: 16px 0;
 }
 </style>
