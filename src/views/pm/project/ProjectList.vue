@@ -95,6 +95,11 @@ const columns = [
     key: 'owner'
   },
   {
+    title: '迭代数量',
+    dataIndex: 'sprint_count',
+    key: 'sprint_count'
+  },
+  {
     title: '创建人',
     dataIndex: 'creator',
     key: 'creator'
