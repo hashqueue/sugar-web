@@ -5,7 +5,7 @@ import { userStore } from '@/stores/user'
 import { getUserPermissions } from '@/apis/system/permission'
 import { generateRouteData } from '@/utils/common'
 
-const routeWhiteList = ['/login', '/404', '/403', '/500', '/userProfile', '/dashboard']
+export const routeWhiteList = ['/login', '/404', '/403', '/500', '/userProfile', '/dashboard']
 
 /**
  * 公开路由表
@@ -28,7 +28,7 @@ const publicRoutes = [
         component: () => import(/* webpackChunkName: "profile" */ '@/views/dashboard/DashboardView.vue'),
         meta: {
           title: '工作台',
-          icon: 'dashboard-outlined',
+          icon: 'desktop-outlined',
           // 控制是否显示在菜单栏中
           is_visible: true
         }

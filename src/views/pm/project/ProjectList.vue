@@ -56,11 +56,13 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { deleteProjectDetail, getProjectList, updateProjectWithPatch, getProjectDetail } from '@/apis/pm/project'
 import ProjectCreateUpdateForm from './ProjectCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
 
+const router = useRouter()
 const dataList = ref([])
 const allUserDataList = ref([])
 const drawerVisible = ref(false)
@@ -179,7 +181,7 @@ const addMembers = (record) => {
 }
 
 const viewProjectDetail = (record) => {
-  console.log(record.id)
+  router.push({ name: `/pm/projects/:projectId`, params: { projectId: record.id } })
 }
 
 const submitAddMembers = () => {
