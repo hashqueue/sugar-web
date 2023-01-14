@@ -50,14 +50,17 @@
         </template>
       </template>
     </standard-table>
-    <!--    <project-create-update-form-->
-    <!--        :visible="visible"-->
-    <!--        :title="title"-->
-    <!--        :project-id="projectId"-->
-    <!--        :all-user-list="allUserDataList"-->
-    <!--        @close-modal="closeModal"-->
-    <!--        @get-latest-project-list="getSprintListData"-->
-    <!--    />-->
+    <sprint-create-update-form
+      v-if="projectInfo"
+      :visible="visible"
+      :all-user-list="allUserDataList"
+      :title="title"
+      :project-name="projectInfo.name"
+      :project-id="Number(projectId)"
+      :sprint-id="sprintId"
+      @close-modal="closeModal"
+      @get-latest-project-list="getSprintListData"
+    />
   </a-card>
 </template>
 
@@ -66,15 +69,16 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProjectDetail } from '@/apis/pm/project'
 import { deleteSprintDetail, getSprintList } from '@/apis/pm/sprint'
-// import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
+import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
+import { getAllUserList } from '@/apis/system/user'
 
 const route = useRoute()
 const projectId = route.params.projectId
+const sprintId = ref(null)
 const projectInfo = ref(undefined)
+const allUserDataList = ref([])
 const dataList = ref([])
-const drawerVisible = ref(false)
-const drawerTitle = ref('')
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
 const visible = ref(false)
 const title = ref('新增迭代')
@@ -98,11 +102,6 @@ const columns = [
     key: 'status'
   },
   {
-    title: '所属项目',
-    dataIndex: 'project_name',
-    key: 'project_name'
-  },
-  {
     title: '负责人',
     dataIndex: 'owner',
     key: 'owner'
@@ -123,24 +122,24 @@ const columns = [
     key: 'bug_count'
   },
   {
+    title: '开始时间',
+    dataIndex: 'start_time',
+    key: 'start_time'
+  },
+  {
+    title: '预计完成时间',
+    dataIndex: 'finish_time',
+    key: 'finish_time'
+  },
+  {
     title: '创建人',
     dataIndex: 'creator',
     key: 'creator'
   },
   {
-    title: '最后修改人',
-    dataIndex: 'modifier',
-    key: 'modifier'
-  },
-  {
     title: '创建时间',
     dataIndex: 'create_time',
     key: 'create_time'
-  },
-  {
-    title: '修改时间',
-    dataIndex: 'update_time',
-    key: 'update_time'
   },
   {
     title: '操作',
@@ -150,6 +149,9 @@ const columns = [
 
 getProjectDetail(projectId).then((res) => {
   projectInfo.value = res
+})
+getAllUserList().then((res) => {
+  allUserDataList.value = res.results
 })
 
 const getSprintListData = () => {
@@ -166,9 +168,6 @@ const getSprintListData = () => {
   })
 }
 getSprintListData()
-const viewSprintDetail = (record) => {
-  console.log(record.id)
-}
 const onPageChange = (pagination, filters, sorter, currentDataSource) => {
   sprintQueryParams.value.page = pagination.current
   sprintQueryParams.value.size = pagination.pageSize
@@ -195,9 +194,12 @@ const closeModal = () => {
   visible.value = false
 }
 const updateSprint = (record) => {
-  projectId.value = record.id
+  sprintId.value = record.id
   title.value = '修改迭代'
   visible.value = true
+}
+const viewSprintDetail = (record) => {
+  console.log(record.id)
 }
 const deleteSprint = (projectId) => {
   deleteSprintDetail(projectId).then(() => {
