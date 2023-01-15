@@ -66,7 +66,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getProjectDetail } from '@/apis/pm/project'
 import { deleteSprintDetail, getSprintList } from '@/apis/pm/sprint'
 import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
@@ -74,6 +74,7 @@ import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
 
 const route = useRoute()
+const router = useRouter()
 const projectId = route.params.projectId
 const sprintId = ref(null)
 const projectInfo = ref(undefined)
@@ -120,16 +121,6 @@ const columns = [
     title: '缺陷数量',
     dataIndex: 'bug_count',
     key: 'bug_count'
-  },
-  {
-    title: '开始时间',
-    dataIndex: 'start_time',
-    key: 'start_time'
-  },
-  {
-    title: '预计完成时间',
-    dataIndex: 'finish_time',
-    key: 'finish_time'
   },
   {
     title: '创建人',
@@ -199,10 +190,10 @@ const updateSprint = (record) => {
   visible.value = true
 }
 const viewSprintDetail = (record) => {
-  console.log(record.id)
+  router.push({ name: `/pm/sprints/:sprintId`, params: { sprintId: record.id } })
 }
-const deleteSprint = (projectId) => {
-  deleteSprintDetail(projectId).then(() => {
+const deleteSprint = (scriptId) => {
+  deleteSprintDetail(scriptId).then(() => {
     getSprintListData()
   })
 }

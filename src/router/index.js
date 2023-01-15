@@ -46,17 +46,17 @@ const publicRoutes = [
       {
         path: '/404',
         name: '404',
-        component: () => import('@/views/error-page/Exc404View.vue')
+        component: () => import('@/views/errorPage/Exc404View.vue')
       },
       {
         path: '/403',
         name: '403',
-        component: () => import('@/views/error-page/Exc403View.vue')
+        component: () => import('@/views/errorPage/Exc403View.vue')
       },
       {
         path: '/500',
         name: '500',
-        component: () => import('@/views/error-page/Exc500View.vue')
+        component: () => import('@/views/errorPage/Exc500View.vue')
       }
       // {
       //   path: '/:pathMatch(.*)*',
