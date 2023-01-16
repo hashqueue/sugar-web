@@ -40,7 +40,7 @@
     :project-id="projectId"
     :all-user-list="allUserDataList"
     @close-modal="closeModal"
-    @get-latest-project-list="getProjectListData"
+    @get-latest-data-list="getProjectListData"
   />
   <a-drawer v-model:visible="drawerVisible" :title="drawerTitle" width="50%" :mask-closable="false">
     <standard-table

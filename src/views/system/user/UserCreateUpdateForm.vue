@@ -1,61 +1,63 @@
 <template>
-  <a-modal
-    :visible="visible"
-    :width="800"
-    :title="title"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onOk"
-    @cancel="onCancel"
+  <standard-modal
+    :modal-visible="visible"
+    :modal-width="800"
+    :modal-title="title"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onOk"
+    @on-modal-cancel="onCancel"
   >
-    <a-alert
-      message="新增用户后默认密码为88888888，用户可自行去个人中心重置密码。"
-      type="success"
-      style="margin-bottom: 30px"
-      v-if="title === '新增用户'"
-    />
-    <a-form
-      ref="createUpdateFormRef"
-      :model="createUpdateForm"
-      :rules="createUpdateRules"
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol"
-    >
-      <a-form-item name="username" label="用户名">
-        <a-input v-model:value="createUpdateForm.username" placeholder="请输入用户名" />
-      </a-form-item>
-      <a-form-item name="email" label="邮箱">
-        <a-input v-model:value="createUpdateForm.email" placeholder="请输入邮箱" />
-      </a-form-item>
-      <a-form-item name="name" label="姓名">
-        <a-input v-model:value="createUpdateForm.name" placeholder="请输入姓名" />
-      </a-form-item>
-      <a-form-item name="position" label="职位">
-        <a-input v-model:value="createUpdateForm.position" placeholder="请输入职位" />
-      </a-form-item>
-      <a-form-item name="roles" label="角色">
-        <a-select
-          v-model:value="createUpdateForm.roles"
-          mode="multiple"
-          style="width: 100%"
-          placeholder="请选择角色"
-          :options="roleOptions"
-        ></a-select>
-      </a-form-item>
-      <a-form-item name="department" label="部门">
-        <a-tree-select
-          v-model:value="createUpdateForm.department"
-          style="width: 100%"
-          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-          placeholder="请选择部门"
-          allow-clear
-          tree-default-expand-all
-          :tree-data="departmentTreeData"
-        >
-        </a-tree-select>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <template #form>
+      <a-alert
+        message="新增用户后默认密码为88888888，用户可自行去个人中心重置密码。"
+        type="success"
+        style="margin-bottom: 30px"
+        v-if="title === '新增用户'"
+      />
+      <a-form
+        ref="createUpdateFormRef"
+        :model="createUpdateForm"
+        :rules="createUpdateRules"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        <a-form-item name="username" label="用户名">
+          <a-input v-model:value="createUpdateForm.username" placeholder="请输入用户名" />
+        </a-form-item>
+        <a-form-item name="email" label="邮箱">
+          <a-input v-model:value="createUpdateForm.email" placeholder="请输入邮箱" />
+        </a-form-item>
+        <a-form-item name="name" label="姓名">
+          <a-input v-model:value="createUpdateForm.name" placeholder="请输入姓名" />
+        </a-form-item>
+        <a-form-item name="position" label="职位">
+          <a-input v-model:value="createUpdateForm.position" placeholder="请输入职位" />
+        </a-form-item>
+        <a-form-item name="roles" label="角色">
+          <a-select
+            v-model:value="createUpdateForm.roles"
+            mode="multiple"
+            style="width: 100%"
+            placeholder="请选择角色"
+            :options="roleOptions"
+          ></a-select>
+        </a-form-item>
+        <a-form-item name="department" label="部门">
+          <a-tree-select
+            v-model:value="createUpdateForm.department"
+            style="width: 100%"
+            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+            placeholder="请选择部门"
+            allow-clear
+            tree-default-expand-all
+            :tree-data="departmentTreeData"
+          >
+          </a-tree-select>
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
 </template>
 
 <script setup>
@@ -64,6 +66,7 @@ import { createUser, updateUser, getUserDetail } from '@/apis/system/user'
 import { getRoleList } from '@/apis/system/role'
 import { generateObjectTreeData } from '@/utils/common'
 import { getOrganizationTreeList } from '@/apis/system/organization'
+import StandardModal from '@/components/StandardModal.vue'
 
 const props = defineProps({
   userId: {

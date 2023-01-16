@@ -59,7 +59,7 @@
       :project-id="Number(projectId)"
       :sprint-id="sprintId"
       @close-modal="closeModal"
-      @get-latest-project-list="getSprintListData"
+      @get-latest-data-list="getSprintListData"
     />
   </a-card>
 </template>

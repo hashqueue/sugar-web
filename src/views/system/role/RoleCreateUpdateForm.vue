@@ -1,33 +1,36 @@
 <template>
-  <a-modal
-    :visible="visible"
-    :width="500"
-    :title="title"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onOk"
-    @cancel="onCancel"
+  <standard-modal
+    :modal-visible="visible"
+    :modal-width="500"
+    :modal-title="title"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onOk"
+    @on-modal-cancel="onCancel"
   >
-    <a-form
-      ref="createUpdateFormRef"
-      :model="createUpdateForm"
-      :rules="createUpdateRules"
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol"
-    >
-      <a-form-item name="name" label="角色名称">
-        <a-input v-model:value="createUpdateForm.name" placeholder="请输入角色名称" />
-      </a-form-item>
-      <a-form-item name="desc" label="角色描述">
-        <a-input v-model:value="createUpdateForm.desc" placeholder="请输入角色描述" />
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <template #form>
+      <a-form
+        ref="createUpdateFormRef"
+        :model="createUpdateForm"
+        :rules="createUpdateRules"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        <a-form-item name="name" label="角色名称">
+          <a-input v-model:value="createUpdateForm.name" placeholder="请输入角色名称" />
+        </a-form-item>
+        <a-form-item name="desc" label="角色描述">
+          <a-input v-model:value="createUpdateForm.desc" placeholder="请输入角色描述" />
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
 import { createRole, updateRole, getRoleDetail } from '@/apis/system/role'
+import StandardModal from '@/components/StandardModal.vue'
 
 const props = defineProps({
   roleId: {

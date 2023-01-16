@@ -1,59 +1,62 @@
 <template>
-  <a-modal
-    :visible="visible"
-    :width="600"
-    :title="title"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onOk"
-    @cancel="onCancel"
+  <standard-modal
+    :modal-visible="visible"
+    :modal-width="600"
+    :modal-title="title"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onOk"
+    @on-modal-cancel="onCancel"
   >
-    <a-form
-      ref="createUpdateFormRef"
-      :model="createUpdateForm"
-      :rules="createUpdateRules"
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol"
-    >
-      <a-form-item name="name" label="迭代名">
-        <a-input v-model:value="createUpdateForm.name" placeholder="请输入迭代名" />
-      </a-form-item>
-      <a-form-item label="所属项目">
-        <a-input :value="projectName" disabled />
-      </a-form-item>
-      <a-form-item name="owner" label="迭代负责人">
-        <a-select
-          v-model:value="createUpdateForm.owner"
-          placeholder="请选择迭代负责人"
-          :show-arrow="true"
-          :filter-option="false"
-          :options="ownerOptions"
-          @change="handleOwnerChange"
-        ></a-select>
-      </a-form-item>
-      <a-form-item name="status" label="迭代状态">
-        <a-select
-          v-model:value="createUpdateForm.status"
-          placeholder="请选择迭代状态"
-          :options="statusOptions"
-        ></a-select>
-      </a-form-item>
-      <a-form-item name="start_time" label="迭代周期">
-        <a-range-picker
-          v-model:value="createUpdateForm.start_time"
-          :show-time="{ format: 'HH:mm' }"
-          format="YYYY-MM-DD HH:mm"
-          :placeholder="['开始时间', '完成时间']"
-        />
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <template #form>
+      <a-form
+        ref="createUpdateFormRef"
+        :model="createUpdateForm"
+        :rules="createUpdateRules"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        <a-form-item name="name" label="迭代名">
+          <a-input v-model:value="createUpdateForm.name" placeholder="请输入迭代名" />
+        </a-form-item>
+        <a-form-item label="所属项目">
+          <a-input :value="projectName" disabled />
+        </a-form-item>
+        <a-form-item name="owner" label="迭代负责人">
+          <a-select
+            v-model:value="createUpdateForm.owner"
+            placeholder="请选择迭代负责人"
+            :show-arrow="true"
+            :filter-option="false"
+            :options="ownerOptions"
+            @change="handleOwnerChange"
+          ></a-select>
+        </a-form-item>
+        <a-form-item name="status" label="迭代状态">
+          <a-select
+            v-model:value="createUpdateForm.status"
+            placeholder="请选择迭代状态"
+            :options="statusOptions"
+          ></a-select>
+        </a-form-item>
+        <a-form-item name="start_time" label="迭代周期">
+          <a-range-picker
+            v-model:value="createUpdateForm.start_time"
+            :show-time="{ format: 'HH:mm' }"
+            format="YYYY-MM-DD HH:mm"
+            :placeholder="['开始时间', '完成时间']"
+          />
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import { createSprint, updateSprint, getSprintDetail } from '@/apis/pm/sprint'
+import StandardModal from '@/components/StandardModal.vue'
 
 const props = defineProps({
   projectName: {
@@ -81,7 +84,7 @@ const props = defineProps({
     required: true
   }
 })
-const emit = defineEmits(['closeModal', 'getLatestProjectList'])
+const emit = defineEmits(['closeModal', 'getLatestDataList'])
 const statusOptions = [
   { value: 0, label: '未开始' },
   { value: 1, label: '进行中' },
@@ -163,13 +166,13 @@ const onOk = () => {
       if (props.title === '修改迭代') {
         updateSprint(props.sprintId, values).then(() => {
           // 重新获取一遍迭代信息
-          emit('getLatestProjectList')
+          emit('getLatestDataList')
           createUpdateFormRef.value.resetFields()
           emit('closeModal')
         })
       } else {
         createSprint(values).then(() => {
-          emit('getLatestProjectList')
+          emit('getLatestDataList')
           createUpdateFormRef.value.resetFields()
           emit('closeModal')
         })

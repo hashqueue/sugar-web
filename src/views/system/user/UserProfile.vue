@@ -33,78 +33,84 @@
       </a-descriptions-item>
     </a-descriptions>
   </a-card>
-  <a-modal
-    v-model:visible="resetVisible"
-    title="重置密码"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onResetOk"
-    @cancel="onResetCancel"
+  <standard-modal
+    :modal-visible="resetVisible"
+    :modal-width="600"
+    :modal-title="'重置密码'"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onResetOk"
+    @on-modal-cancel="onResetCancel"
   >
-    <a-form
-      ref="resetFormRef"
-      :model="resetPasswordForm"
-      :rules="resetRules"
-      :label-col="passwordLabelCol"
-      :wrapper-col="passwordWrapperCol"
-    >
-      <a-form-item name="password" label="新密码">
-        <a-input-password v-model:value="resetPasswordForm.password" placeholder="请输入新密码" />
-      </a-form-item>
-      <a-form-item name="password_confirm" label="确认密码">
-        <a-input-password
-          class="new-password"
-          v-model:value="resetPasswordForm.password_confirm"
-          placeholder="请再次输入新密码"
-        />
-      </a-form-item>
-    </a-form>
-  </a-modal>
-  <a-modal
-    v-model:visible="updateVisible"
-    title="修改个人信息"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onUpdateOk"
-    @cancel="onUpdateCancel"
+    <template #form>
+      <a-form
+        ref="resetFormRef"
+        :model="resetPasswordForm"
+        :rules="resetRules"
+        :label-col="passwordLabelCol"
+        :wrapper-col="passwordWrapperCol"
+      >
+        <a-form-item name="password" label="新密码">
+          <a-input-password v-model:value="resetPasswordForm.password" placeholder="请输入新密码" />
+        </a-form-item>
+        <a-form-item name="password_confirm" label="确认密码">
+          <a-input-password
+            class="new-password"
+            v-model:value="resetPasswordForm.password_confirm"
+            placeholder="请再次输入新密码"
+          />
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
+
+  <standard-modal
+    :modal-visible="updateVisible"
+    :modal-title="'修改个人信息'"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onUpdateOk"
+    @on-modal-cancel="onUpdateCancel"
   >
-    <a-form
-      ref="updateFormRef"
-      :model="updateProfileForm"
-      :rules="updateRules"
-      :label-col="profileLabelCol"
-      :wrapper-col="profileWrapperCol"
-    >
-      <a-form-item name="username" label="用户名">
-        <a-input v-model:value="updateProfileForm.username" placeholder="请输入用户名" />
-      </a-form-item>
-      <a-form-item name="name" label="姓名">
-        <a-input v-model:value="updateProfileForm.name" placeholder="请输入姓名" />
-      </a-form-item>
-      <a-form-item name="email" label="邮箱">
-        <a-input v-model:value="updateProfileForm.email" type="email" placeholder="请输入邮箱" />
-      </a-form-item>
-      <a-form-item name="gender" label="性别">
-        <a-radio-group v-model:value="updateProfileForm.gender">
-          <a-radio value="male">男</a-radio>
-          <a-radio value="female">女</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item name="mobile" label="手机号">
-        <a-input v-model:value="updateProfileForm.mobile" placeholder="请输入手机号" />
-      </a-form-item>
-      <a-form-item name="position" label="职位">
-        <a-input v-model:value="updateProfileForm.position" placeholder="请输入职位" />
-      </a-form-item>
-      <a-form-item name="birthday" label="生日">
-        <a-date-picker
-          v-model:value="updateProfileForm.birthday"
-          :value-format="'YYYY-MM-DD'"
-          placeholder="请选择生日"
-        />
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <template #form>
+      <a-form
+        ref="updateFormRef"
+        :model="updateProfileForm"
+        :rules="updateRules"
+        :label-col="profileLabelCol"
+        :wrapper-col="profileWrapperCol"
+      >
+        <a-form-item name="username" label="用户名">
+          <a-input v-model:value="updateProfileForm.username" placeholder="请输入用户名" />
+        </a-form-item>
+        <a-form-item name="name" label="姓名">
+          <a-input v-model:value="updateProfileForm.name" placeholder="请输入姓名" />
+        </a-form-item>
+        <a-form-item name="email" label="邮箱">
+          <a-input v-model:value="updateProfileForm.email" type="email" placeholder="请输入邮箱" />
+        </a-form-item>
+        <a-form-item name="gender" label="性别">
+          <a-radio-group v-model:value="updateProfileForm.gender">
+            <a-radio value="male">男</a-radio>
+            <a-radio value="female">女</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item name="mobile" label="手机号">
+          <a-input v-model:value="updateProfileForm.mobile" placeholder="请输入手机号" />
+        </a-form-item>
+        <a-form-item name="position" label="职位">
+          <a-input v-model:value="updateProfileForm.position" placeholder="请输入职位" />
+        </a-form-item>
+        <a-form-item name="birthday" label="生日">
+          <a-date-picker
+            v-model:value="updateProfileForm.birthday"
+            :value-format="'YYYY-MM-DD'"
+            placeholder="请选择生日"
+          />
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
 </template>
 
 <script setup>
@@ -114,6 +120,7 @@ import { message } from 'ant-design-vue'
 import { EditOutlined, UnlockOutlined } from '@ant-design/icons-vue'
 import { getUserProfile, resetUserPassword, updateUserProfile } from '@/apis/system/user'
 import { removeAllItem } from '@/utils/storage'
+import StandardModal from '@/components/StandardModal.vue'
 
 const userInfo = ref(null)
 const updateProfileForm = ref(null)
@@ -201,6 +208,7 @@ const onResetOk = () => {
     })
 }
 const onResetCancel = () => {
+  resetVisible.value = false
   resetFormRef.value.resetFields()
 }
 const onUpdateOk = () => {
@@ -219,6 +227,7 @@ const onUpdateOk = () => {
     })
 }
 const onUpdateCancel = () => {
+  updateVisible.value = false
   updateFormRef.value.resetFields()
 }
 </script>

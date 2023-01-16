@@ -1,42 +1,44 @@
 <template>
-  <a-modal
-    :visible="visible"
-    :width="600"
-    :title="title"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onOk"
-    @cancel="onCancel"
+  <standard-modal
+    :modal-visible="visible"
+    :modal-width="600"
+    :modal-title="title"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onOk"
+    @on-modal-cancel="onCancel"
   >
-    <a-form
-      ref="createUpdateFormRef"
-      :model="createUpdateForm"
-      :rules="createUpdateRules"
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol"
-    >
-      <a-form-item name="name" label="名称">
-        <a-input v-model:value="createUpdateForm.name" placeholder="请输入组织架构名称" />
-      </a-form-item>
-      <a-form-item name="type" label="类型">
-        <a-select v-model:value="createUpdateForm.type" placeholder="请选择组织架构类型" :options="typeOptions">
-        </a-select>
-      </a-form-item>
-      <a-form-item name="parent" label="父组织架构" v-if="title !== '新增根组织架构'">
-        <a-select
-          v-model:value="createUpdateForm.parent"
-          show-search
-          placeholder="输入组织架构名称以进行(模糊)搜索"
-          :default-active-first-option="false"
-          :show-arrow="true"
-          :filter-option="false"
-          :options="parentOptions"
-          @search="handleSearch"
-          @change="handleChange"
-        ></a-select>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <template #form>
+      <a-form
+        ref="createUpdateFormRef"
+        :model="createUpdateForm"
+        :rules="createUpdateRules"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        <a-form-item name="name" label="名称">
+          <a-input v-model:value="createUpdateForm.name" placeholder="请输入组织架构名称" />
+        </a-form-item>
+        <a-form-item name="type" label="类型">
+          <a-select v-model:value="createUpdateForm.type" placeholder="请选择组织架构类型" :options="typeOptions">
+          </a-select>
+        </a-form-item>
+        <a-form-item name="parent" label="父组织架构" v-if="title !== '新增根组织架构'">
+          <a-select
+            v-model:value="createUpdateForm.parent"
+            show-search
+            placeholder="输入组织架构名称以进行(模糊)搜索"
+            :default-active-first-option="false"
+            :show-arrow="true"
+            :filter-option="false"
+            :options="parentOptions"
+            @search="handleSearch"
+            @change="handleChange"
+          ></a-select>
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
 </template>
 
 <script setup>
@@ -48,6 +50,7 @@ import {
   getOrganizationDetail
 } from '@/apis/system/organization'
 import { isSelectOptionsIncludeItemData } from '@/utils/common'
+import StandardModal from '@/components/StandardModal.vue'
 
 const props = defineProps({
   organizationId: {

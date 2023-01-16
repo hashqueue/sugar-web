@@ -1,69 +1,75 @@
 <template>
-  <a-modal
-    :visible="visible"
-    :width="650"
-    :title="title"
-    ok-text="提交"
-    cancel-text="取消"
-    @ok="onOk"
-    @cancel="onCancel"
+  <standard-modal
+    :modal-visible="visible"
+    :modal-width="650"
+    :modal-title="title"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    @on-modal-ok="onOk"
+    @on-modal-cancel="onCancel"
   >
-    <a-form
-      ref="createUpdateFormRef"
-      :model="createUpdateForm"
-      :rules="createUpdateRules"
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol"
-    >
-      <a-form-item name="title" label="权限名称">
-        <a-input v-model:value="createUpdateForm.title" placeholder="请输入权限名称" />
-      </a-form-item>
-      <a-form-item name="is_menu" label="是否菜单">
-        <a-switch v-model:checked="createUpdateForm.is_menu" />
-      </a-form-item>
-      <a-form-item name="icon" label="图标" v-show="createUpdateForm.is_menu === true">
-        <a-input v-model:value="createUpdateForm.icon" placeholder="请输入图标code(详见Ant Design Vue官网中图标组件)" />
-      </a-form-item>
-      <a-form-item name="component" label="组件路径" v-show="createUpdateForm.is_menu === true">
-        <a-input v-model:value="createUpdateForm.component" placeholder="请输入组件路径(@/layout/BasicLayout.vue)" />
-      </a-form-item>
-      <a-form-item name="path" label="路由path" v-show="createUpdateForm.is_menu === true">
-        <a-input v-model:value="createUpdateForm.path" placeholder="请输入路由path(/systems)" />
-      </a-form-item>
-      <a-form-item name="redirect" label="路由重定向path" v-show="createUpdateForm.is_menu === true">
-        <a-input v-model:value="createUpdateForm.redirect" placeholder="请输入路由重定向path(/servicesMonitor)" />
-      </a-form-item>
-      <a-form-item name="url_path" label="请求路径" v-show="createUpdateForm.is_menu === false">
-        <a-input v-model:value="createUpdateForm.url_path" placeholder="请输入请求路径(部分请求路径需添加正则)" />
-      </a-form-item>
-      <a-form-item name="method" label="请求方法" v-show="createUpdateForm.is_menu === false">
-        <a-select v-model:value="createUpdateForm.method" placeholder="请选择请求方法" :options="methodOptions">
-        </a-select>
-      </a-form-item>
-      <a-form-item name="is_visible" label="是否显示" v-show="createUpdateForm.is_menu === true">
-        <a-switch v-model:checked="createUpdateForm.is_visible" />
-      </a-form-item>
-      <a-form-item name="parent" label="父权限" v-if="title !== '新增根权限'">
-        <a-select
-          v-model:value="createUpdateForm.parent"
-          show-search
-          placeholder="输入权限名称以进行(模糊)搜索"
-          :default-active-first-option="false"
-          :show-arrow="true"
-          :filter-option="false"
-          :options="parentOptions"
-          @search="handleSearch"
-          @change="handleChange"
-        ></a-select>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <template #form>
+      <a-form
+        ref="createUpdateFormRef"
+        :model="createUpdateForm"
+        :rules="createUpdateRules"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        <a-form-item name="title" label="权限名称">
+          <a-input v-model:value="createUpdateForm.title" placeholder="请输入权限名称" />
+        </a-form-item>
+        <a-form-item name="is_menu" label="是否菜单">
+          <a-switch v-model:checked="createUpdateForm.is_menu" />
+        </a-form-item>
+        <a-form-item name="icon" label="图标" v-show="createUpdateForm.is_menu === true">
+          <a-input
+            v-model:value="createUpdateForm.icon"
+            placeholder="请输入图标code(详见Ant Design Vue官网中图标组件)"
+          />
+        </a-form-item>
+        <a-form-item name="component" label="组件路径" v-show="createUpdateForm.is_menu === true">
+          <a-input v-model:value="createUpdateForm.component" placeholder="请输入组件路径(@/layout/BasicLayout.vue)" />
+        </a-form-item>
+        <a-form-item name="path" label="路由path" v-show="createUpdateForm.is_menu === true">
+          <a-input v-model:value="createUpdateForm.path" placeholder="请输入路由path(/systems)" />
+        </a-form-item>
+        <a-form-item name="redirect" label="路由重定向path" v-show="createUpdateForm.is_menu === true">
+          <a-input v-model:value="createUpdateForm.redirect" placeholder="请输入路由重定向path(/servicesMonitor)" />
+        </a-form-item>
+        <a-form-item name="url_path" label="请求路径" v-show="createUpdateForm.is_menu === false">
+          <a-input v-model:value="createUpdateForm.url_path" placeholder="请输入请求路径(部分请求路径需添加正则)" />
+        </a-form-item>
+        <a-form-item name="method" label="请求方法" v-show="createUpdateForm.is_menu === false">
+          <a-select v-model:value="createUpdateForm.method" placeholder="请选择请求方法" :options="methodOptions">
+          </a-select>
+        </a-form-item>
+        <a-form-item name="is_visible" label="是否显示" v-show="createUpdateForm.is_menu === true">
+          <a-switch v-model:checked="createUpdateForm.is_visible" />
+        </a-form-item>
+        <a-form-item name="parent" label="父权限" v-if="title !== '新增根权限'">
+          <a-select
+            v-model:value="createUpdateForm.parent"
+            show-search
+            placeholder="输入权限名称以进行(模糊)搜索"
+            :default-active-first-option="false"
+            :show-arrow="true"
+            :filter-option="false"
+            :options="parentOptions"
+            @search="handleSearch"
+            @change="handleChange"
+          ></a-select>
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
 import { getPermissionList, createPermission, updatePermission, getPermissionDetail } from '@/apis/system/permission'
 import { isSelectOptionsIncludeItemData } from '@/utils/common'
+import StandardModal from '@/components/StandardModal.vue'
 
 const props = defineProps({
   permissionId: {
