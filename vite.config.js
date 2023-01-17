@@ -10,7 +10,7 @@ export default defineConfig({
       less: {
         modifyVars: {
           // Ant Design Vue 的样式变量
-          'primary-color': '#1DA57A', // #7546c9-紫色 1DA57A-青绿色
+          // 'primary-color': '#1DA57A', // #7546c9-紫色 1DA57A-青绿色
           'font-size-base': '15px'
         },
         // main.js => (import 'ant-design-vue/dist/antd.less')

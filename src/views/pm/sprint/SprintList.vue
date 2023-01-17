@@ -1,21 +1,4 @@
 <template>
-  <a-card>
-    <a-descriptions v-if="projectInfo" :title="projectInfo.name" size="default">
-      <a-descriptions-item label="ID">{{ projectInfo.id }}</a-descriptions-item>
-      <a-descriptions-item label="负责人">{{ projectInfo.owner }} - {{ projectInfo.owner_name }}</a-descriptions-item>
-      <a-descriptions-item label="状态">
-        <a-tag color="green">
-          {{ status[projectInfo.status] }}
-        </a-tag>
-      </a-descriptions-item>
-      <a-descriptions-item label="迭代数量">{{ projectInfo.sprint_count }}</a-descriptions-item>
-      <a-descriptions-item label="成员数量">{{ projectInfo.members.length }}</a-descriptions-item>
-      <a-descriptions-item label="创建人">{{ projectInfo.creator }}</a-descriptions-item>
-      <a-descriptions-item label="最后修改人">{{ projectInfo.modifier }}</a-descriptions-item>
-      <a-descriptions-item label="创建时间">{{ projectInfo.create_time }}</a-descriptions-item>
-      <a-descriptions-item label="修改时间">{{ projectInfo.update_time }}</a-descriptions-item>
-    </a-descriptions>
-  </a-card>
   <a-card title="迭代列表" class="sprint-list">
     <a-button class="add-btn" type="primary" @click="createSprint" v-permission="'新增迭代'">新增迭代</a-button>
     <standard-table
@@ -56,7 +39,7 @@
       :all-user-list="allUserDataList"
       :title="title"
       :project-name="projectInfo.name"
-      :project-id="Number(projectId)"
+      :project-id="projectId"
       :sprint-id="sprintId"
       @close-modal="closeModal"
       @get-latest-data-list="getSprintListData"
@@ -66,24 +49,30 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getProjectDetail } from '@/apis/pm/project'
+import { useRouter } from 'vue-router'
 import { deleteSprintDetail, getSprintList } from '@/apis/pm/sprint'
 import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
 
-const route = useRoute()
+const props = defineProps({
+  projectInfo: {
+    type: [Object, undefined],
+    required: false
+  },
+  projectId: {
+    type: Number,
+    required: true
+  }
+})
 const router = useRouter()
-const projectId = route.params.projectId
 const sprintId = ref(null)
-const projectInfo = ref(undefined)
 const allUserDataList = ref([])
 const dataList = ref([])
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
 const visible = ref(false)
 const title = ref('新增迭代')
-const sprintQueryParams = ref({ project_id: projectId })
+const sprintQueryParams = ref({ project_id: props.projectId })
 const tableLoading = ref(false)
 const paginationData = ref({})
 const columns = [
@@ -138,9 +127,6 @@ const columns = [
   }
 ]
 
-getProjectDetail(projectId).then((res) => {
-  projectInfo.value = res
-})
 getAllUserList().then((res) => {
   allUserDataList.value = res.results
 })
