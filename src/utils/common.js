@@ -70,12 +70,12 @@ export const generateRouteTreeData = (originDataArr) => {
     }
   }
   for (const key of Object.keys(treeObj)) {
+    treeObj[key].children = []
     if (treeObj[key]['meta']['parentId'] !== null) {
       const pid = treeObj[key]['meta']['parentId']
       const parent_data = treeObj[pid]
       parent_data.children.push(treeObj[key])
     } else {
-      treeObj[key].children = []
       treeMenuData.push(treeObj[key])
     }
   }

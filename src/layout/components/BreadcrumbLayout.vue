@@ -4,7 +4,7 @@
       <!-- 不可点击项 -->
       <span v-if="index === breadcrumbData.length - 1" class="no-redirect">{{ item.meta.title }}</span>
       <!-- 可点击项 -->
-      <a v-else class="redirect" @click.prevent="onLinkClick(item)">{{ item.meta.title }}</a>
+      <a v-else class="redirect" @click.prevent="onLinkClick(item, route.params)">{{ item.meta.title }}</a>
     </a-breadcrumb-item>
   </a-breadcrumb>
 </template>
@@ -31,8 +31,17 @@ watch(
     immediate: true
   }
 )
-const onLinkClick = (item) => {
-  router.push(item.path)
+const onLinkClick = (item, params) => {
+  // 替换路由path中的路径参数params
+  let targetPath = item.path
+  for (const paramsKey in params) {
+    if (targetPath.includes(paramsKey)) {
+      targetPath = targetPath.replace(`:${paramsKey}`, params[paramsKey])
+    }
+  }
+  // console.log('item.path', item.path)
+  // console.log('targetPath', targetPath)
+  router.push(targetPath)
 }
 </script>
 

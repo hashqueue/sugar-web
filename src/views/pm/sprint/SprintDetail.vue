@@ -28,20 +28,27 @@
       </a-card>
     </a-col>
     <a-col :span="20">
-      <work-item-list />
+      <a-card class="work-item">
+        <a-tabs v-model:activeKey="tabsActiveKey" centered @change="onTabsChange">
+          <a-tab-pane key="1" tab="需求"><RouterView /></a-tab-pane>
+          <a-tab-pane key="2" tab="任务"><RouterView /></a-tab-pane>
+          <a-tab-pane key="3" tab="缺陷"><RouterView /></a-tab-pane>
+        </a-tabs>
+      </a-card>
     </a-col>
   </a-row>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getSprintDetail } from '@/apis/pm/sprint'
-import WorkItemList from '@/views/pm/workItem/WorkItemList.vue'
 
 const route = useRoute()
+const router = useRouter()
 const sprintId = route.params.sprintId
 const sprintName = ref('')
+const tabsActiveKey = ref('')
 
 // const sprintInfo = ref(undefined)
 const sprintInfoData = ref([])
@@ -66,12 +73,19 @@ getSprintDetail(sprintId).then((res) => {
     { title: '修改时间', value: res.update_time }
   ]
 })
+const onTabsChange = (activeKey) => {
+  if (activeKey === '1') {
+    router.push(`/pm/sprints/${sprintId}/features/list`)
+  } else if (activeKey === '2') {
+    router.push(`/pm/sprints/${sprintId}/tasks/list`)
+  }
+}
 </script>
 
 <style scoped>
-.sprint-desc {
-  height: 100vh;
-}
+/*.sprint-desc {*/
+/*  height: 100vh;*/
+/*}*/
 .card-content {
   margin-top: 20px;
   display: flex;

@@ -29,7 +29,11 @@
           />
         </a-form-item>
         <a-form-item name="component" label="组件路径" v-show="createUpdateForm.is_menu === true">
-          <a-input v-model:value="createUpdateForm.component" placeholder="请输入组件路径(@/layout/BasicLayout.vue)" />
+          <a-textarea
+            v-model:value="createUpdateForm.component"
+            auto-size
+            placeholder="请输入组件路径(@/layout/BasicLayout.vue)"
+          />
         </a-form-item>
         <a-form-item name="path" label="路由path" v-show="createUpdateForm.is_menu === true">
           <a-input v-model:value="createUpdateForm.path" placeholder="请输入路由path(/systems)" />

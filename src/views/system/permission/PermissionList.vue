@@ -116,7 +116,7 @@ const columns = [
   {
     title: '路由重定向path',
     dataIndex: 'redirect',
-    width: 200,
+    width: 250,
     key: 'redirect'
   },
   {
