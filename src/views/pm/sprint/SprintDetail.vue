@@ -29,11 +29,12 @@
     </a-col>
     <a-col :span="20">
       <a-card class="work-item">
-        <a-tabs v-model:activeKey="tabsActiveKey" centered @change="onTabsChange">
-          <a-tab-pane key="1" tab="需求"><RouterView /></a-tab-pane>
-          <a-tab-pane key="2" tab="任务"><RouterView /></a-tab-pane>
-          <a-tab-pane key="3" tab="缺陷"><RouterView /></a-tab-pane>
+        <a-tabs v-model:activeKey="tabsActiveKey" centered @change="onTabsChange" :destroy-inactive-tab-pane="true">
+          <a-tab-pane key="1" tab="需求"></a-tab-pane>
+          <a-tab-pane key="2" tab="任务"></a-tab-pane>
+          <a-tab-pane key="3" tab="缺陷"></a-tab-pane>
         </a-tabs>
+        <RouterView />
       </a-card>
     </a-col>
   </a-row>
@@ -75,9 +76,11 @@ getSprintDetail(sprintId).then((res) => {
 })
 const onTabsChange = (activeKey) => {
   if (activeKey === '1') {
-    router.push(`/pm/sprints/${sprintId}/features/list`)
+    router.push({ name: `/pm/sprints/:sprintId/features/list`, params: { sprintId: sprintId } })
   } else if (activeKey === '2') {
-    router.push(`/pm/sprints/${sprintId}/tasks/list`)
+    router.push({ name: `/pm/sprints/:sprintId/tasks/list`, params: { sprintId: sprintId } })
+  } else if (activeKey === '3') {
+    router.push({ name: `/pm/sprints/:sprintId/bugs/list`, params: { sprintId: sprintId } })
   }
 }
 </script>

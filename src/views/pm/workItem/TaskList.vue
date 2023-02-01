@@ -1,7 +1,13 @@
 <template>
-  <h1>任务</h1>
+  <work-item-list :sprint-id="Number(sprintId)" :work-item-type="1" />
 </template>
 
-<script setup></script>
+<script setup>
+import { useRoute } from 'vue-router'
+import WorkItemList from '@/views/pm/workItem/WorkItemList.vue'
+
+const route = useRoute()
+const sprintId = route.params.sprintId
+</script>
 
 <style scoped></style>
