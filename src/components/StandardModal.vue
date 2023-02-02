@@ -7,6 +7,7 @@
     :cancel-text="modalCancelText"
     @ok="onOk"
     @cancel="onCancel"
+    :mask-closable="modalMaskClosable"
   >
     <slot name="form"></slot>
   </a-modal>
@@ -14,12 +15,17 @@
 
 <script setup>
 const props = defineProps({
+  modalMaskClosable: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
   modalVisible: {
     type: Boolean,
     required: true
   },
   modalWidth: {
-    type: Number,
+    type: [Number, String],
     required: false
   },
   modalTitle: {

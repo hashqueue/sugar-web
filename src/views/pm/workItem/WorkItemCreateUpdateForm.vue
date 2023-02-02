@@ -1,10 +1,11 @@
 <template>
   <standard-modal
     :modal-visible="visible"
-    :modal-width="600"
+    :modal-width="'80%'"
     :modal-title="title"
     :modal-ok-text="'提交'"
     :modal-cancel-text="'取消'"
+    :modal-mask-closable="false"
     @on-modal-ok="onOk"
     @on-modal-cancel="onCancel"
   >
