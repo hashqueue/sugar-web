@@ -1,7 +1,7 @@
 <template>
   <standard-modal
     :modal-visible="visible"
-    :modal-width="'80%'"
+    :modal-width="'60%'"
     :modal-title="title"
     :modal-ok-text="'提交'"
     :modal-cancel-text="'取消'"
@@ -10,44 +10,51 @@
     @on-modal-cancel="onCancel"
   >
     <template #form>
-      <a-form
-        ref="createUpdateFormRef"
-        :model="createUpdateForm"
-        :rules="createUpdateRules"
-        :label-col="labelCol"
-        :wrapper-col="wrapperCol"
-      >
-        <a-form-item name="name" label="迭代名">
-          <a-input v-model:value="createUpdateForm.name" placeholder="请输入迭代名" />
+      <a-form ref="createUpdateFormRef" :model="createUpdateForm" :rules="createUpdateRules">
+        <a-form-item name="name" label="标题">
+          <a-input v-model:value="createUpdateForm.name" placeholder="请输入标题" />
         </a-form-item>
-        <a-form-item label="所属项目">
-          <a-input :value="projectName" disabled />
+        <a-divider orientation="left">详情</a-divider>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item label="所属项目">
+              <a-input :value="sprintInfo.project_name" disabled />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="所属迭代">
+              <a-input :value="sprintInfo.name" disabled />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item name="owner" label="负责人">
+              <a-select
+                v-model:value="createUpdateForm.owner"
+                placeholder="请选择负责人"
+                :show-arrow="true"
+                :filter-option="false"
+                :options="ownerOptions"
+                @change="handleOwnerChange"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item name="priority" label="优先级">
+              <a-select
+                v-model:value="createUpdateForm.priority"
+                placeholder="请选择优先级"
+                :options="priorityOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-form-item name="desc" label="描述">
+          <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
         </a-form-item>
-        <a-form-item name="owner" label="迭代负责人">
-          <a-select
-            v-model:value="createUpdateForm.owner"
-            placeholder="请选择迭代负责人"
-            :show-arrow="true"
-            :filter-option="false"
-            :options="ownerOptions"
-            @change="handleOwnerChange"
-          ></a-select>
-        </a-form-item>
-        <a-form-item name="status" label="迭代状态">
-          <a-select
-            v-model:value="createUpdateForm.status"
-            placeholder="请选择迭代状态"
-            :options="statusOptions"
-          ></a-select>
-        </a-form-item>
-        <a-form-item name="start_time" label="迭代周期">
-          <a-range-picker
-            v-model:value="createUpdateForm.start_time"
-            :show-time="{ format: 'HH:mm' }"
-            format="YYYY-MM-DD HH:mm"
-            :placeholder="['开始时间', '完成时间']"
-          />
-        </a-form-item>
+        <a-divider orientation="left">关注者</a-divider>
       </a-form>
     </template>
   </standard-modal>
@@ -58,17 +65,14 @@ import { computed, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import { createSprint, updateSprint, getSprintDetail } from '@/apis/pm/sprint'
 import StandardModal from '@/components/StandardModal.vue'
+import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
 const props = defineProps({
-  projectName: {
-    type: String,
+  sprintInfo: {
+    type: Object,
     required: true
   },
-  sprintId: {
-    type: [Number, null],
-    required: false
-  },
-  projectId: {
+  workItemId: {
     type: [Number, null],
     required: false
   },
@@ -88,9 +92,59 @@ const props = defineProps({
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
 const statusOptions = [
   { value: 0, label: '未开始' },
-  { value: 1, label: '进行中' },
-  { value: 2, label: '已完成' }
+  { value: 1, label: '待处理' },
+  { value: 2, label: '重新打开' },
+  { value: 3, label: '进行中' },
+  { value: 4, label: '实现中' },
+  { value: 5, label: '已完成' },
+  { value: 6, label: '修复中' },
+  { value: 7, label: '已实现' },
+  { value: 8, label: '关闭' },
+  { value: 9, label: '已修复' },
+  { value: 10, label: '已验证' },
+  { value: 11, label: '已拒绝' }
 ]
+const priorityOptions = [
+  { value: 0, label: '最低' },
+  { value: 1, label: '较低' },
+  { value: 2, label: '普通' },
+  { value: 3, label: '较高' },
+  { value: 4, label: '最高' }
+]
+const bugTypeOptions = [
+  { value: 0, label: '功能问题' },
+  { value: 1, label: '性能问题' },
+  { value: 2, label: '接口问题' },
+  { value: 3, label: '安全问题' },
+  { value: 4, label: 'UI界面问题' },
+  { value: 5, label: '易用性问题' },
+  { value: 6, label: '兼容问题' },
+  { value: 7, label: '数据问题' },
+  { value: 8, label: '逻辑问题' },
+  { value: 9, label: '需求问题' }
+]
+const processResultOptions = [
+  { value: 0, label: '不予处理' },
+  { value: 1, label: '延期处理' },
+  { value: 2, label: '外部原因' },
+  { value: 3, label: '需求变更' },
+  { value: 4, label: '转需求' },
+  { value: 5, label: '挂起' },
+  { value: 6, label: '设计如此' },
+  { value: 7, label: '重复缺陷' },
+  { value: 8, label: '无法重现' }
+]
+const severityOptions = [
+  { value: 0, label: '保留' },
+  { value: 1, label: '建议' },
+  { value: 2, label: '提示' },
+  { value: 3, label: '一般' },
+  { value: 4, label: '严重' },
+  { value: 5, label: '致命' }
+]
+//
+const mdEditorOptions = ref({ height: '500px', width: '100%' })
+//
 const ownerOptions = computed(() => {
   const tmpOwnerArr = []
   for (const item of props.allUserList) {
@@ -101,20 +155,27 @@ const ownerOptions = computed(() => {
 const createUpdateForm = ref({
   name: '',
   owner: undefined,
-  start_time: [],
-  finish_time: '',
+  type: props.title === '新增需求' ? 0 : props.title === '新增任务' ? 1 : 2,
+  priority: undefined,
   status: 0,
-  project: props.projectId
+  severity: null,
+  bug_type: null,
+  process_result: null,
+  desc: '',
+  deadline: '',
+  sprint: props.sprintInfo.id,
+  followers: []
 })
 const createUpdateFormRef = ref()
-const labelCol = { span: 5 }
-const wrapperCol = { span: 20 }
+const labelCol = { span: 2 }
+const wrapperCol = { span: 24 }
 const createUpdateRules = {
   name: [
-    { required: true, trigger: 'change', message: '迭代名不能为空!' },
-    { max: 64, trigger: 'change', message: '迭代名不能多于64位!' }
+    { required: true, trigger: 'change', message: '标题不能为空!' },
+    { max: 64, trigger: 'change', message: '标题不能多于64位!' }
   ],
-  owner: [{ required: true, trigger: 'change', message: '迭代负责人不能为空!' }]
+  owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
+  priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }]
 }
 
 watch(

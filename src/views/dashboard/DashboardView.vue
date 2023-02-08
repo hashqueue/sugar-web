@@ -45,7 +45,7 @@ import { UniversalTransition } from 'echarts/features'
 import { LineChart, PieChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
-import MonacoEditor from '@/components/MonacoEditor.vue'
+import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 
 use([
   CanvasRenderer,

@@ -36,8 +36,14 @@ self.MonacoEnvironment = {
 let editor
 const editorId = Math.random().toString(36).slice(-10)
 const props = defineProps({
-  contentValue: String,
-  editorOptions: Object
+  contentValue: {
+    type: String,
+    required: true
+  },
+  editorOptions: {
+    type: Object,
+    required: true
+  }
 })
 const aDivWidth = ref(null)
 const aDivHeight = ref(null)
