@@ -36,7 +36,6 @@
                 :show-arrow="true"
                 :filter-option="false"
                 :options="ownerOptions"
-                @change="handleOwnerChange"
               ></a-select>
             </a-form-item>
           </a-col>
@@ -50,20 +49,57 @@
             </a-form-item>
           </a-col>
         </a-row>
-
+        <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
+          <a-date-picker
+            placeholder="请选择截止日期"
+            v-model:value="createUpdateForm.deadline"
+            :show-time="{ format: 'HH:mm' }"
+            format="YYYY-MM-DD HH:mm"
+          />
+        </a-form-item>
+        <a-row :gutter="24" v-if="createUpdateForm.type === 2">
+          <a-col :span="12">
+            <a-form-item name="bug_type" label="缺陷类型">
+              <a-select
+                v-model:value="createUpdateForm.bug_type"
+                placeholder="请选择缺陷类型"
+                :show-arrow="true"
+                :filter-option="false"
+                :options="bugTypeOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item name="severity" label="严重程度">
+              <a-select
+                v-model:value="createUpdateForm.severity"
+                placeholder="请选择严重程度"
+                :options="severityOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-form-item name="desc" label="描述">
           <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
         </a-form-item>
         <a-divider orientation="left">关注者</a-divider>
+        <a-form-item name="followers" label="关注者">
+          <a-select
+            v-model:value="createUpdateForm.followers"
+            mode="multiple"
+            style="width: 100%"
+            placeholder="请选择关注者"
+            :options="followersOptions"
+          ></a-select>
+        </a-form-item>
       </a-form>
     </template>
   </standard-modal>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
-import dayjs from 'dayjs'
-import { createSprint, updateSprint, getSprintDetail } from '@/apis/pm/sprint'
+import { computed, ref } from 'vue'
+import { createWorkItem } from '@/apis/pm/workItem'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -90,6 +126,18 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
+// TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
+const processResultOptions = [
+  { value: 0, label: '不予处理' },
+  { value: 1, label: '延期处理' },
+  { value: 2, label: '外部原因' },
+  { value: 3, label: '需求变更' },
+  { value: 4, label: '转需求' },
+  { value: 5, label: '挂起' },
+  { value: 6, label: '设计如此' },
+  { value: 7, label: '重复缺陷' },
+  { value: 8, label: '无法重现' }
+]
 const statusOptions = [
   { value: 0, label: '未开始' },
   { value: 1, label: '待处理' },
@@ -123,17 +171,6 @@ const bugTypeOptions = [
   { value: 8, label: '逻辑问题' },
   { value: 9, label: '需求问题' }
 ]
-const processResultOptions = [
-  { value: 0, label: '不予处理' },
-  { value: 1, label: '延期处理' },
-  { value: 2, label: '外部原因' },
-  { value: 3, label: '需求变更' },
-  { value: 4, label: '转需求' },
-  { value: 5, label: '挂起' },
-  { value: 6, label: '设计如此' },
-  { value: 7, label: '重复缺陷' },
-  { value: 8, label: '无法重现' }
-]
 const severityOptions = [
   { value: 0, label: '保留' },
   { value: 1, label: '建议' },
@@ -142,9 +179,7 @@ const severityOptions = [
   { value: 4, label: '严重' },
   { value: 5, label: '致命' }
 ]
-//
 const mdEditorOptions = ref({ height: '500px', width: '100%' })
-//
 const ownerOptions = computed(() => {
   const tmpOwnerArr = []
   for (const item of props.allUserList) {
@@ -152,11 +187,18 @@ const ownerOptions = computed(() => {
   }
   return tmpOwnerArr
 })
+const followersOptions = computed(() => {
+  const tmpOwnerArr = []
+  for (const item of props.allUserList) {
+    tmpOwnerArr.push({ value: item.id, label: `${item.username} - ${item.name}` })
+  }
+  return tmpOwnerArr
+})
 const createUpdateForm = ref({
   name: '',
-  owner: undefined,
+  owner: null,
   type: props.title === '新增需求' ? 0 : props.title === '新增任务' ? 1 : 2,
-  priority: undefined,
+  priority: null,
   status: 0,
   severity: null,
   bug_type: null,
@@ -167,8 +209,6 @@ const createUpdateForm = ref({
   followers: []
 })
 const createUpdateFormRef = ref()
-const labelCol = { span: 2 }
-const wrapperCol = { span: 24 }
 const createUpdateRules = {
   name: [
     { required: true, trigger: 'change', message: '标题不能为空!' },
@@ -177,68 +217,22 @@ const createUpdateRules = {
   owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
   priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }]
 }
-
-watch(
-  () => props.visible,
-  (newValue, oldValue) => {
-    if (props.title === '修改迭代') {
-      getSprintDetail(props.sprintId).then((res) => {
-        if (res.start_time && res.finish_time) {
-          createUpdateForm.value = {
-            name: res.name,
-            owner: res.owner,
-            status: res.status,
-            project: res.project,
-            start_time: [dayjs(res.start_time), dayjs(res.finish_time)],
-            finish_time: ''
-          }
-        } else {
-          createUpdateForm.value = {
-            name: res.name,
-            owner: res.owner,
-            status: res.status,
-            project: res.project,
-            start_time: [],
-            finish_time: ''
-          }
-        }
-      })
-    }
-  }
-)
-
-const handleOwnerChange = (val) => {
-  // console.log(val)
-  createUpdateForm.value.owner = val
-}
 const onOk = () => {
   createUpdateFormRef.value
     .validateFields()
     .then((values) => {
-      // 添加projectId
-      values.project = props.projectId
-      // 设置迭代周期的起止时间
-      const dateTimes = values.start_time
-      if (values.start_time && values.start_time.length) {
-        values.start_time = dateTimes[0].format('YYYY-MM-DD HH:mm')
-        values.finish_time = dateTimes[1].format('YYYY-MM-DD HH:mm')
-      } else {
-        delete values.start_time
+      // 设置截止日期
+      if (values.deadline) {
+        values.deadline = values.deadline.format('YYYY-MM-DD HH:mm')
       }
-      if (props.title === '修改迭代') {
-        updateSprint(props.sprintId, values).then(() => {
-          // 重新获取一遍迭代信息
-          emit('getLatestDataList')
-          createUpdateFormRef.value.resetFields()
-          emit('closeModal')
-        })
-      } else {
-        createSprint(values).then(() => {
-          emit('getLatestDataList')
-          createUpdateFormRef.value.resetFields()
-          emit('closeModal')
-        })
-      }
+      values.sprint = createUpdateForm.value.sprint
+      values.type = createUpdateForm.value.type
+      values.status = createUpdateForm.value.status
+      createWorkItem(values).then(() => {
+        emit('getLatestDataList')
+        createUpdateFormRef.value.resetFields()
+        emit('closeModal')
+      })
     })
     .catch((info) => {
       console.log('Validate Failed:', info)

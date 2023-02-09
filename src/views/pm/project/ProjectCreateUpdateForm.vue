@@ -26,7 +26,6 @@
             :show-arrow="true"
             :filter-option="false"
             :options="ownerOptions"
-            @change="handleOwnerChange"
           ></a-select>
         </a-form-item>
         <a-form-item name="status" label="项目状态">
@@ -108,11 +107,6 @@ watch(
     }
   }
 )
-
-const handleOwnerChange = (val) => {
-  // console.log(val)
-  createUpdateForm.value.owner = val
-}
 
 const onOk = () => {
   createUpdateFormRef.value

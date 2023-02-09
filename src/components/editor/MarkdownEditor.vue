@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 
@@ -20,6 +20,15 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['update:contentValue'])
+
+watch(
+  () => props.contentValue,
+  async (newContentValue, oldContentValue) => {
+    if (newContentValue !== mdEditor.value.getValue()) {
+      mdEditor.value.setValue(newContentValue)
+    }
+  }
+)
 
 onMounted(() => {
   mdEditor.value = new Vditor(editorId, {
