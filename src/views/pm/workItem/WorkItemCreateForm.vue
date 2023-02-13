@@ -1,0 +1,218 @@
+<template>
+  <standard-modal
+    :modal-visible="visible"
+    :modal-width="'60%'"
+    :modal-title="title"
+    :modal-ok-text="'提交'"
+    :modal-cancel-text="'取消'"
+    :modal-mask-closable="false"
+    @on-modal-ok="onOk"
+    @on-modal-cancel="onCancel"
+  >
+    <template #form>
+      <a-form ref="createUpdateFormRef" :model="createUpdateForm" :rules="createUpdateRules">
+        <a-form-item name="name" label="标题">
+          <a-input v-model:value="createUpdateForm.name" placeholder="请输入标题" />
+        </a-form-item>
+        <a-divider orientation="left">属性</a-divider>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item label="所属项目">
+              <a-input :value="sprintInfo.project_name" disabled />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="所属迭代">
+              <a-input :value="sprintInfo.name" disabled />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item name="owner" label="负责人">
+              <a-select
+                v-model:value="createUpdateForm.owner"
+                placeholder="请选择负责人"
+                :show-arrow="true"
+                :filter-option="false"
+                :options="ownerOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item name="priority" label="优先级">
+              <a-select
+                v-model:value="createUpdateForm.priority"
+                placeholder="请选择优先级"
+                :options="priorityOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
+          <a-date-picker
+            placeholder="请选择截止日期"
+            v-model:value="createUpdateForm.deadline"
+            :show-time="{ format: 'HH:mm' }"
+            format="YYYY-MM-DD HH:mm"
+          />
+        </a-form-item>
+        <a-row :gutter="24" v-if="createUpdateForm.type === 2">
+          <a-col :span="12">
+            <a-form-item name="bug_type" label="缺陷类型">
+              <a-select
+                v-model:value="createUpdateForm.bug_type"
+                placeholder="请选择缺陷类型"
+                :show-arrow="true"
+                :filter-option="false"
+                :options="bugTypeOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item name="severity" label="严重程度">
+              <a-select
+                v-model:value="createUpdateForm.severity"
+                placeholder="请选择严重程度"
+                :options="severityOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-form-item name="desc" label="描述">
+          <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
+        </a-form-item>
+        <a-divider orientation="left">关注者</a-divider>
+        <a-form-item name="followers" label="关注者">
+          <a-select
+            v-model:value="createUpdateForm.followers"
+            mode="multiple"
+            style="width: 100%"
+            placeholder="请选择关注者"
+            :options="followersOptions"
+          ></a-select>
+        </a-form-item>
+      </a-form>
+    </template>
+  </standard-modal>
+</template>
+
+<script setup>
+import { computed, ref } from 'vue'
+import { createWorkItem } from '@/apis/pm/workItem'
+import StandardModal from '@/components/StandardModal.vue'
+import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
+
+const props = defineProps({
+  sprintInfo: {
+    type: Object,
+    required: true
+  },
+  visible: {
+    type: Boolean,
+    required: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  allUserList: {
+    type: Array,
+    required: true
+  }
+})
+const emit = defineEmits(['closeModal', 'getLatestDataList'])
+// TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
+const priorityOptions = [
+  { value: 0, label: '最低' },
+  { value: 1, label: '较低' },
+  { value: 2, label: '普通' },
+  { value: 3, label: '较高' },
+  { value: 4, label: '最高' }
+]
+const bugTypeOptions = [
+  { value: 0, label: '功能问题' },
+  { value: 1, label: '性能问题' },
+  { value: 2, label: '接口问题' },
+  { value: 3, label: '安全问题' },
+  { value: 4, label: 'UI界面问题' },
+  { value: 5, label: '易用性问题' },
+  { value: 6, label: '兼容问题' },
+  { value: 7, label: '数据问题' },
+  { value: 8, label: '逻辑问题' },
+  { value: 9, label: '需求问题' }
+]
+const severityOptions = [
+  { value: 0, label: '保留' },
+  { value: 1, label: '建议' },
+  { value: 2, label: '提示' },
+  { value: 3, label: '一般' },
+  { value: 4, label: '严重' },
+  { value: 5, label: '致命' }
+]
+const mdEditorOptions = ref({ height: '500px', width: '100%' })
+const ownerOptions = computed(() => {
+  const tmpOwnerArr = []
+  for (const item of props.allUserList) {
+    tmpOwnerArr.push({ value: item.username, label: `${item.username} - ${item.name}` })
+  }
+  return tmpOwnerArr
+})
+const followersOptions = computed(() => {
+  const tmpOwnerArr = []
+  for (const item of props.allUserList) {
+    tmpOwnerArr.push({ value: item.id, label: `${item.username} - ${item.name}` })
+  }
+  return tmpOwnerArr
+})
+const createUpdateForm = ref({
+  name: '',
+  owner: null,
+  type: props.title === '新增需求' ? 0 : props.title === '新增任务' ? 1 : 2,
+  priority: null,
+  status: 0,
+  severity: null,
+  bug_type: null,
+  process_result: null,
+  desc: '',
+  deadline: '',
+  sprint: props.sprintInfo.id,
+  followers: []
+})
+const createUpdateFormRef = ref()
+const createUpdateRules = {
+  name: [
+    { required: true, trigger: 'change', message: '标题不能为空!' },
+    { max: 64, trigger: 'change', message: '标题不能多于64位!' }
+  ],
+  owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
+  priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }]
+}
+const onOk = () => {
+  createUpdateFormRef.value
+    .validateFields()
+    .then((values) => {
+      // 设置截止日期
+      if (values.deadline) {
+        values.deadline = values.deadline.format('YYYY-MM-DD HH:mm')
+      }
+      values.sprint = createUpdateForm.value.sprint
+      values.type = createUpdateForm.value.type
+      values.status = createUpdateForm.value.status
+      createWorkItem(values).then(() => {
+        emit('getLatestDataList')
+        createUpdateFormRef.value.resetFields()
+        emit('closeModal')
+      })
+    })
+    .catch((info) => {
+      console.log('Validate Failed:', info)
+    })
+}
+const onCancel = () => {
+  createUpdateFormRef.value.resetFields()
+  emit('closeModal')
+}
+</script>
+
+<style scoped></style>

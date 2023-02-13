@@ -49,14 +49,23 @@
       </template>
     </template>
   </standard-table>
-  <work-item-create-update-form
+  <work-item-create-form
     v-if="sprintInfo"
-    :visible="visible"
+    :visible="createFormVisible"
+    :all-user-list="allUserDataList"
+    :title="title"
+    :sprint-info="sprintInfo"
+    @close-modal="closeCreateFormModal"
+    @get-latest-data-list="getWorkItemListData"
+  />
+  <work-item-update-form
+    v-if="sprintInfo"
+    :visible="updateFormVisible"
     :all-user-list="allUserDataList"
     :title="title"
     :sprint-info="sprintInfo"
     :workItem-id="workItemId"
-    @close-modal="closeModal"
+    @close-modal="closeUpdateFormModal"
     @get-latest-data-list="getWorkItemListData"
   />
 </template>
@@ -65,7 +74,8 @@
 import { ref } from 'vue'
 import { deleteWorkItemDetail, getWorkItemList } from '@/apis/pm/workItem'
 import { getSprintDetail } from '@/apis/pm/sprint'
-import WorkItemCreateUpdateForm from './WorkItemCreateUpdateForm.vue'
+import WorkItemCreateForm from './WorkItemCreateForm.vue'
+import WorkItemUpdateForm from './WorkItemUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
 
@@ -87,7 +97,8 @@ const dataList = ref([])
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
 const workItemTypes = { 0: '需求', 1: '任务', 2: '缺陷' }
 const priority = { 0: '最低', 1: '较低', 2: '普通', 3: '较高', 4: '最高' }
-const visible = ref(false)
+const createFormVisible = ref(false)
+const updateFormVisible = ref(false)
 const title = ref(`新增${workItemTypes[props.workItemType]}`)
 const workItemQueryParams = ref({ sprint_id: props.sprintId, type: props.workItemType })
 const tableLoading = ref(false)
@@ -174,16 +185,20 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
 }
 const createWorkItem = () => {
   title.value = `新增${workItemTypes[props.workItemType]}`
-  visible.value = true
+  createFormVisible.value = true
 }
-const closeModal = () => {
+const closeCreateFormModal = () => {
   title.value = `新增${workItemTypes[props.workItemType]}`
-  visible.value = false
+  createFormVisible.value = false
+}
+const closeUpdateFormModal = () => {
+  title.value = `修改${workItemTypes[props.workItemType]}`
+  updateFormVisible.value = false
 }
 const updateWorkItem = (record) => {
   workItemId.value = record.id
   title.value = `修改${workItemTypes[props.workItemType]}`
-  visible.value = true
+  updateFormVisible.value = true
 }
 const deleteWorkItem = (scriptId) => {
   deleteWorkItemDetail(scriptId).then(() => {

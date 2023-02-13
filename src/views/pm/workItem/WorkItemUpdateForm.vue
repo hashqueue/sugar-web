@@ -14,7 +14,10 @@
         <a-form-item name="name" label="标题">
           <a-input v-model:value="createUpdateForm.name" placeholder="请输入标题" />
         </a-form-item>
-        <a-divider orientation="left">详情</a-divider>
+        <a-form-item name="desc" label="描&nbsp&nbsp&nbsp述">
+          <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
+        </a-form-item>
+        <a-divider orientation="left">属性</a-divider>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item label="所属项目">
@@ -29,7 +32,7 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item name="owner" label="负责人">
+            <a-form-item name="owner" label="&nbsp负责人">
               <a-select
                 v-model:value="createUpdateForm.owner"
                 placeholder="请选择负责人"
@@ -40,7 +43,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item name="priority" label="优先级">
+            <a-form-item name="priority" label="&nbsp优先级">
               <a-select
                 v-model:value="createUpdateForm.priority"
                 placeholder="请选择优先级"
@@ -79,11 +82,27 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item name="desc" label="描述">
-          <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
-        </a-form-item>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp态">
+              <a-select
+                v-model:value="createUpdateForm.status"
+                placeholder="请选择工作项状态"
+                :options="statusOptions"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-divider orientation="left">基础信息</a-divider>
+        <a-descriptions v-if="workItemInfo">
+          <a-descriptions-item label="ID">{{ workItemInfo.id }}</a-descriptions-item>
+          <a-descriptions-item label="创建人">{{ workItemInfo.creator }}</a-descriptions-item>
+          <a-descriptions-item label="最后修改人">{{ workItemInfo.modifier }}</a-descriptions-item>
+          <a-descriptions-item label="创建时间">{{ workItemInfo.create_time }}</a-descriptions-item>
+          <a-descriptions-item label="修改时间">{{ workItemInfo.update_time }}</a-descriptions-item>
+        </a-descriptions>
         <a-divider orientation="left">关注者</a-divider>
-        <a-form-item name="followers" label="关注者">
+        <a-form-item name="followers" label="&nbsp关&nbsp注&nbsp者&nbsp">
           <a-select
             v-model:value="createUpdateForm.followers"
             mode="multiple"
@@ -98,8 +117,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { createWorkItem } from '@/apis/pm/workItem'
+import { computed, ref, watch } from 'vue'
+import dayjs from 'dayjs'
+import { createWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -127,6 +147,11 @@ const props = defineProps({
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
 // TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
+const workItemTypeOptions = [
+  { value: 0, label: '需求' },
+  { value: 1, label: '任务' },
+  { value: 2, label: '缺陷' }
+]
 const processResultOptions = [
   { value: 0, label: '不予处理' },
   { value: 1, label: '延期处理' },
@@ -197,7 +222,7 @@ const followersOptions = computed(() => {
 const createUpdateForm = ref({
   name: '',
   owner: null,
-  type: props.title === '新增需求' ? 0 : props.title === '新增任务' ? 1 : 2,
+  type: props.title === '修改需求' ? 0 : props.title === '修改任务' ? 1 : 2,
   priority: null,
   status: 0,
   severity: null,
@@ -208,6 +233,7 @@ const createUpdateForm = ref({
   sprint: props.sprintInfo.id,
   followers: []
 })
+const workItemInfo = ref(null)
 const createUpdateFormRef = ref()
 const createUpdateRules = {
   name: [
@@ -215,8 +241,26 @@ const createUpdateRules = {
     { max: 64, trigger: 'change', message: '标题不能多于64位!' }
   ],
   owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
-  priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }]
+  priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }],
+  status: [{ required: true, trigger: 'change', message: '工作项状态不能为空!' }]
 }
+watch(
+  () => props.visible,
+  () => {
+    if (props.visible) {
+      getWorkItemDetail(props.workItemId).then((res) => {
+        workItemInfo.value = res
+        const { create_time, update_time, parent, id, creator, modifier, owner_name, sprint_name, ...workItemObj } = res
+        if (workItemObj.deadline) {
+          workItemObj.deadline = dayjs(workItemObj.deadline)
+        } else {
+          workItemObj.deadline = ''
+        }
+        createUpdateForm.value = workItemObj
+      })
+    }
+  }
+)
 const onOk = () => {
   createUpdateFormRef.value
     .validateFields()
