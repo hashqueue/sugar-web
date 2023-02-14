@@ -8,6 +8,7 @@
     @ok="onOk"
     @cancel="onCancel"
     :mask-closable="modalMaskClosable"
+    :destroy-on-close="destroyModalOnClose"
   >
     <slot name="form"></slot>
   </a-modal>
@@ -15,6 +16,11 @@
 
 <script setup>
 const props = defineProps({
+  destroyModalOnClose: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   modalMaskClosable: {
     type: Boolean,
     required: false,

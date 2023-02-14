@@ -1,7 +1,7 @@
 <template>
   <standard-modal
     :modal-visible="visible"
-    :modal-width="'60%'"
+    :modal-width="'80%'"
     :modal-title="title"
     :modal-ok-text="'提交'"
     :modal-cancel-text="'取消'"
@@ -10,116 +10,163 @@
     @on-modal-cancel="onCancel"
   >
     <template #form>
-      <a-form ref="createUpdateFormRef" :model="createUpdateForm" :rules="createUpdateRules">
-        <a-form-item name="name" label="标题">
-          <a-input v-model:value="createUpdateForm.name" placeholder="请输入标题" />
-        </a-form-item>
-        <a-form-item name="desc" label="描&nbsp&nbsp&nbsp述">
-          <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
-        </a-form-item>
-        <a-divider orientation="left">属性</a-divider>
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item label="所属项目">
-              <a-input :value="sprintInfo.project_name" disabled />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="所属迭代">
-              <a-input :value="sprintInfo.name" disabled />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item name="owner" label="&nbsp负责人">
-              <a-select
-                v-model:value="createUpdateForm.owner"
-                placeholder="请选择负责人"
-                :show-arrow="true"
-                :filter-option="false"
-                :options="ownerOptions"
-              ></a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item name="priority" label="&nbsp优先级">
-              <a-select
-                v-model:value="createUpdateForm.priority"
-                placeholder="请选择优先级"
-                :options="priorityOptions"
-              ></a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
-          <a-date-picker
-            placeholder="请选择截止日期"
-            v-model:value="createUpdateForm.deadline"
-            :show-time="{ format: 'HH:mm' }"
-            format="YYYY-MM-DD HH:mm"
-          />
-        </a-form-item>
-        <a-row :gutter="24" v-if="createUpdateForm.type === 2">
-          <a-col :span="12">
-            <a-form-item name="bug_type" label="缺陷类型">
-              <a-select
-                v-model:value="createUpdateForm.bug_type"
-                placeholder="请选择缺陷类型"
-                :show-arrow="true"
-                :filter-option="false"
-                :options="bugTypeOptions"
-              ></a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item name="severity" label="严重程度">
-              <a-select
-                v-model:value="createUpdateForm.severity"
-                placeholder="请选择严重程度"
-                :options="severityOptions"
-              ></a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp态">
-              <a-select
-                v-model:value="createUpdateForm.status"
-                placeholder="请选择工作项状态"
-                :options="statusOptions"
-              ></a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-divider orientation="left">基础信息</a-divider>
-        <a-descriptions v-if="workItemInfo">
-          <a-descriptions-item label="ID">{{ workItemInfo.id }}</a-descriptions-item>
-          <a-descriptions-item label="创建人">{{ workItemInfo.creator }}</a-descriptions-item>
-          <a-descriptions-item label="最后修改人">{{ workItemInfo.modifier }}</a-descriptions-item>
-          <a-descriptions-item label="创建时间">{{ workItemInfo.create_time }}</a-descriptions-item>
-          <a-descriptions-item label="修改时间">{{ workItemInfo.update_time }}</a-descriptions-item>
-        </a-descriptions>
-        <a-divider orientation="left">关注者</a-divider>
-        <a-form-item name="followers" label="&nbsp关&nbsp注&nbsp者&nbsp">
-          <a-select
-            v-model:value="createUpdateForm.followers"
-            mode="multiple"
-            style="width: 100%"
-            placeholder="请选择关注者"
-            :options="followersOptions"
-          ></a-select>
-        </a-form-item>
-      </a-form>
+      <div style="width: 100%; height: 1px; background-color: #586069"></div>
+      <a-row :gutter="24">
+        <a-col :span="18">
+          <a-tabs v-model:activeKey="contentActiveKey">
+            <a-tab-pane key="1" tab="详情">
+              <a-divider orientation="left">基础信息</a-divider>
+              <a-descriptions v-if="workItemInfo">
+                <a-descriptions-item label="ID">{{ workItemInfo.id }}</a-descriptions-item>
+                <a-descriptions-item label="创建人">{{ workItemInfo.creator }}</a-descriptions-item>
+                <a-descriptions-item label="最后修改人">{{ workItemInfo.modifier }}</a-descriptions-item>
+                <a-descriptions-item label="创建时间">{{ workItemInfo.create_time }}</a-descriptions-item>
+                <a-descriptions-item label="修改时间">{{ workItemInfo.update_time }}</a-descriptions-item>
+              </a-descriptions>
+              <a-divider orientation="left">属性</a-divider>
+              <a-form ref="createUpdateFormRef" :model="createUpdateForm" :rules="createUpdateRules">
+                <a-form-item name="name" label="标题">
+                  <a-input v-model:value="createUpdateForm.name" placeholder="请输入标题" />
+                </a-form-item>
+                <a-form-item name="desc" label="描&nbsp&nbsp&nbsp述">
+                  <markdown-editor v-model:content-value="createUpdateForm.desc" :editor-options="mdEditorOptions" />
+                </a-form-item>
+                <a-row :gutter="24">
+                  <a-col :span="12">
+                    <a-form-item label="所属项目">
+                      <a-input :value="sprintInfo.project_name" disabled />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="所属迭代">
+                      <a-input :value="sprintInfo.name" disabled />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row :gutter="24">
+                  <a-col :span="12">
+                    <a-form-item name="owner" label="&nbsp负责人">
+                      <a-select
+                        v-model:value="createUpdateForm.owner"
+                        placeholder="请选择负责人"
+                        :show-arrow="true"
+                        :filter-option="false"
+                        :options="ownerOptions"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item name="priority" label="&nbsp优先级">
+                      <a-select
+                        v-model:value="createUpdateForm.priority"
+                        placeholder="请选择优先级"
+                        :options="priorityOptions"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
+                  <a-date-picker
+                    placeholder="请选择截止日期"
+                    v-model:value="createUpdateForm.deadline"
+                    :show-time="{ format: 'HH:mm' }"
+                    format="YYYY-MM-DD HH:mm"
+                  />
+                </a-form-item>
+                <a-row :gutter="24" v-if="createUpdateForm.type === 2">
+                  <a-col :span="12">
+                    <a-form-item name="bug_type" label="缺陷类型">
+                      <a-select
+                        v-model:value="createUpdateForm.bug_type"
+                        placeholder="请选择缺陷类型"
+                        :show-arrow="true"
+                        :filter-option="false"
+                        :options="bugTypeOptions"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item name="severity" label="严重程度">
+                      <a-select
+                        v-model:value="createUpdateForm.severity"
+                        placeholder="请选择严重程度"
+                        :options="severityOptions"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row :gutter="24">
+                  <a-col :span="12">
+                    <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp态">
+                      <a-select
+                        v-model:value="createUpdateForm.status"
+                        placeholder="请选择工作项状态"
+                        :options="statusOptions"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-divider orientation="left">关注者</a-divider>
+                <a-form-item name="followers" label="&nbsp关&nbsp注&nbsp者&nbsp">
+                  <a-select
+                    v-model:value="createUpdateForm.followers"
+                    mode="multiple"
+                    style="width: 100%"
+                    placeholder="请选择关注者"
+                    :options="followersOptions"
+                  ></a-select>
+                </a-form-item>
+              </a-form>
+            </a-tab-pane>
+            <a-tab-pane key="2" tab="文件" force-render>Content of Tab Pane 2</a-tab-pane>
+          </a-tabs>
+        </a-col>
+        <a-col :span="6">
+          <a-row :gutter="24" class="height-100">
+            <a-col :span="1" class="height-100">
+              <div style="height: 100%; width: 1px; background-color: #586069"></div>
+            </a-col>
+            <a-col :span="22" class="height-100">
+              <a-tabs v-model:activeKey="activityActiveKey">
+                <a-tab-pane key="x" tab="评论">
+                  <a-card>as</a-card>
+                  <a-card>as</a-card>
+                  <a-comment class="comment">
+                    <template #avatar>
+                      <a-avatar :src="userAvatar" alt="User Avatar" />
+                    </template>
+                    <template #content>
+                      <a-form-item>
+                        <a-textarea v-model:value="commentValue" :rows="2" />
+                      </a-form-item>
+                      <a-form-item>
+                        <a-button
+                          html-type="submit"
+                          :loading="commentSubmitting"
+                          type="primary"
+                          @click="handleCommentSubmit"
+                          >添加</a-button
+                        >
+                      </a-form-item>
+                    </template>
+                  </a-comment>
+                </a-tab-pane>
+                <a-tab-pane key="y" tab="变更记录"></a-tab-pane>
+              </a-tabs>
+            </a-col>
+          </a-row>
+        </a-col>
+      </a-row>
     </template>
   </standard-modal>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { createWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
+import { getUserProfile } from '@/apis/system/user'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -147,6 +194,14 @@ const props = defineProps({
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
 // TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
+const contentActiveKey = ref('1')
+const activityActiveKey = ref('x')
+const userAvatar = ref('')
+const commentValue = ref('')
+const commentSubmitting = ref(false)
+getUserProfile().then((res) => {
+  userAvatar.value = res.avatar
+})
 const workItemTypeOptions = [
   { value: 0, label: '需求' },
   { value: 1, label: '任务' },
@@ -261,6 +316,15 @@ watch(
     }
   }
 )
+const handleCommentSubmit = () => {
+  if (!commentValue.value) {
+    message.error('评论内容不能为空！')
+    return
+  }
+  commentSubmitting.value = true
+  console.log(commentValue.value)
+  commentSubmitting.value = false
+}
 const onOk = () => {
   createUpdateFormRef.value
     .validateFields()
@@ -288,4 +352,11 @@ const onCancel = () => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.height-100 {
+  height: 100%;
+}
+.comment {
+  margin-top: 20px;
+}
+</style>
