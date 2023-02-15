@@ -94,7 +94,20 @@ const workItemId = ref(null)
 const sprintInfo = ref(undefined)
 const allUserDataList = ref([])
 const dataList = ref([])
-const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
+const status = {
+  0: '未开始',
+  1: '待处理',
+  2: '重新打开',
+  3: '进行中',
+  4: '实现中',
+  5: '已完成',
+  6: '修复中',
+  7: '已实现',
+  8: '关闭',
+  9: '已修复',
+  10: '已验证',
+  11: '已拒绝'
+}
 const workItemTypes = { 0: '需求', 1: '任务', 2: '缺陷' }
 const priority = { 0: '最低', 1: '较低', 2: '普通', 3: '较高', 4: '最高' }
 const createFormVisible = ref(false)

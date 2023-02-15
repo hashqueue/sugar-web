@@ -18,6 +18,9 @@
               <a-divider orientation="left">基础信息</a-divider>
               <a-descriptions v-if="workItemInfo">
                 <a-descriptions-item label="ID">{{ workItemInfo.id }}</a-descriptions-item>
+                <a-descriptions-item label="类型">
+                  <a-tag color="processing">{{ workItemTypeOptions[workItemInfo.type] }}</a-tag>
+                </a-descriptions-item>
                 <a-descriptions-item label="创建人">{{ workItemInfo.creator }}</a-descriptions-item>
                 <a-descriptions-item label="最后修改人">{{ workItemInfo.modifier }}</a-descriptions-item>
                 <a-descriptions-item label="创建时间">{{ workItemInfo.create_time }}</a-descriptions-item>
@@ -65,14 +68,6 @@
                     </a-form-item>
                   </a-col>
                 </a-row>
-                <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
-                  <a-date-picker
-                    placeholder="请选择截止日期"
-                    v-model:value="createUpdateForm.deadline"
-                    :show-time="{ format: 'HH:mm' }"
-                    format="YYYY-MM-DD HH:mm"
-                  />
-                </a-form-item>
                 <a-row :gutter="24" v-if="createUpdateForm.type === 2">
                   <a-col :span="12">
                     <a-form-item name="bug_type" label="缺陷类型">
@@ -97,12 +92,31 @@
                 </a-row>
                 <a-row :gutter="24">
                   <a-col :span="12">
-                    <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp态">
+                    <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp&nbsp态">
                       <a-select
                         v-model:value="createUpdateForm.status"
                         placeholder="请选择工作项状态"
                         :options="statusOptions"
                       ></a-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12" v-if="createUpdateForm.type === 2">
+                    <a-form-item name="process_result" label="处理结果">
+                      <a-select
+                        v-model:value="createUpdateForm.process_result"
+                        placeholder="请选择处理结果"
+                        :options="processResultOptions"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12" v-if="createUpdateForm.type === 1">
+                    <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
+                      <a-date-picker
+                        placeholder="请选择截止日期"
+                        v-model:value="createUpdateForm.deadline"
+                        :show-time="{ format: 'HH:mm' }"
+                        format="YYYY-MM-DD HH:mm"
+                      />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -166,7 +180,7 @@ import { computed, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { userStore } from '@/stores/user'
-import { createWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
+import { updateWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -199,11 +213,7 @@ const contentActiveKey = ref('1')
 const activityActiveKey = ref('x')
 const commentValue = ref('')
 const commentSubmitting = ref(false)
-const workItemTypeOptions = [
-  { value: 0, label: '需求' },
-  { value: 1, label: '任务' },
-  { value: 2, label: '缺陷' }
-]
+const workItemTypeOptions = { 0: '需求', 1: '任务', 2: '缺陷' }
 const processResultOptions = [
   { value: 0, label: '不予处理' },
   { value: 1, label: '延期处理' },
@@ -333,7 +343,8 @@ const onOk = () => {
       values.sprint = createUpdateForm.value.sprint
       values.type = createUpdateForm.value.type
       values.status = createUpdateForm.value.status
-      createWorkItem(values).then(() => {
+      // console.log(values)
+      updateWorkItem(props.workItemId, values).then(() => {
         emit('getLatestDataList')
         createUpdateFormRef.value.resetFields()
         emit('closeModal')
