@@ -32,13 +32,13 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { removeAllItem } from '@/utils/storage'
 import MenuLayout from './menu/MenuLayout.vue'
 import ScreenfullView from '@/components/ScreenfullView.vue'
-import { getUserProfile } from '@/apis/system/user'
 import { userStore } from '@/stores/user'
+import { getUserProfile } from '@/apis/system/user'
 
 const router = useRouter()
 const userSettingStore = userStore()
@@ -48,7 +48,8 @@ const userInfo = ref({
 })
 
 getUserProfile().then((res) => {
-  userInfo.value = res
+  userInfo.value = { username: res.username, email: res.username, avatar: res.avatar }
+  userSettingStore.setUserInfo({ username: res.username, email: res.email, avatar: res.avatar })
 })
 const logOut = () => {
   // 删除当前登录用户拥有的动态路由权限

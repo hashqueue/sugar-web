@@ -24,8 +24,12 @@ const emit = defineEmits(['update:contentValue'])
 watch(
   () => props.contentValue,
   async (newContentValue, oldContentValue) => {
-    if (newContentValue !== mdEditor.value.getValue()) {
-      mdEditor.value.setValue(newContentValue)
+    try {
+      if (newContentValue !== mdEditor.value.getValue()) {
+        mdEditor.value.setValue(newContentValue)
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 )

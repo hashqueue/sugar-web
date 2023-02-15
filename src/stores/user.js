@@ -4,6 +4,7 @@ import { setItem, getItem } from '@/utils/storage'
 export const userStore = defineStore('userSetting', {
   state: () => ({
     token: null,
+    userInfo: null,
     menuPermissions: null,
     buttonPermissions: null,
     userRoutes: null
@@ -16,6 +17,14 @@ export const userStore = defineStore('userSetting', {
         return newToken
       }
       return state.token
+    },
+    getUserInfo(state) {
+      if (!state.userInfo) {
+        const newUserInfo = getItem('userInfo')
+        this.userInfo = newUserInfo
+        return newUserInfo
+      }
+      return state.userInfo
     },
     getMenuPermissions(state) {
       if (!state.menuPermissions) {
@@ -46,6 +55,10 @@ export const userStore = defineStore('userSetting', {
     setToken(token) {
       this.token = token
       setItem('token', token)
+    },
+    setUserInfo(userInfo) {
+      this.userInfo = userInfo
+      setItem('userInfo', userInfo)
     },
     setMenuPermissions(pMenuPermissions) {
       this.menuPermissions = pMenuPermissions

@@ -133,7 +133,7 @@
                   <a-card>as</a-card>
                   <a-comment class="comment">
                     <template #avatar>
-                      <a-avatar :src="userAvatar" alt="User Avatar" />
+                      <a-avatar :src="userSettingStore.getUserInfo.avatar" alt="User Avatar" />
                     </template>
                     <template #content>
                       <a-form-item>
@@ -165,8 +165,8 @@
 import { computed, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import { userStore } from '@/stores/user'
 import { createWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
-import { getUserProfile } from '@/apis/system/user'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -193,15 +193,12 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
+const userSettingStore = userStore()
 // TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
 const contentActiveKey = ref('1')
 const activityActiveKey = ref('x')
-const userAvatar = ref('')
 const commentValue = ref('')
 const commentSubmitting = ref(false)
-getUserProfile().then((res) => {
-  userAvatar.value = res.avatar
-})
 const workItemTypeOptions = [
   { value: 0, label: '需求' },
   { value: 1, label: '任务' },
