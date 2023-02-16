@@ -78,6 +78,7 @@ import WorkItemCreateForm from './WorkItemCreateForm.vue'
 import WorkItemUpdateForm from './WorkItemUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
+import { workItemStore } from '@/stores/workItem'
 
 const props = defineProps({
   workItemType: {
@@ -93,6 +94,7 @@ const props = defineProps({
 const workItemId = ref(null)
 const sprintInfo = ref(undefined)
 const allUserDataList = ref([])
+const workItemSettingStore = workItemStore()
 const dataList = ref([])
 const status = {
   0: '未开始',
@@ -215,6 +217,8 @@ const updateWorkItem = (record) => {
 }
 const deleteWorkItem = (scriptId) => {
   deleteWorkItemDetail(scriptId).then(() => {
+    // 通知sprintDetail组件更新数据
+    workItemSettingStore.setNeedUpdateWorkItemSummary(true)
     getWorkItemListData()
   })
 }

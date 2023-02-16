@@ -208,7 +208,6 @@ const props = defineProps({
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
 const userSettingStore = userStore()
-// TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
 const contentActiveKey = ref('1')
 const activityActiveKey = ref('x')
 const commentValue = ref('')

@@ -41,12 +41,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getSprintDetail } from '@/apis/pm/sprint'
+import { workItemStore } from '@/stores/workItem'
 
 const route = useRoute()
 const router = useRouter()
+const workItemSettingStore = workItemStore()
 const sprintId = route.params.sprintId
 const sprintName = ref('')
 const tabsActiveKey = ref('')
@@ -55,25 +57,39 @@ const tabsActiveKey = ref('')
 const sprintInfoData = ref([])
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
 
-getSprintDetail(sprintId).then((res) => {
-  // sprintInfo.value = res
-  sprintName.value = res.name
-  sprintInfoData.value = [
-    { title: '所属项目', value: res.project_name },
-    { title: 'ID', value: res.id },
-    { title: '负责人', value: `${res.owner} - ${res.owner_name}` },
-    { title: '状态', value: status[res.status] },
-    { title: '需求数量', value: res.feature_count },
-    { title: '任务数量', value: res.task_count },
-    { title: '缺陷数量', value: res.bug_count },
-    { title: '开始时间', value: res.start_time },
-    { title: '预计完成时间', value: res.finish_time },
-    { title: '创建人', value: res.creator },
-    { title: '最后修改人', value: res.modifier },
-    { title: '创建时间', value: res.create_time },
-    { title: '修改时间', value: res.update_time }
-  ]
-})
+watch(
+  () => workItemSettingStore.getNeedUpdateWorkItemSummary,
+  (newNeedUpdateWorkItemSummary) => {
+    if (newNeedUpdateWorkItemSummary) {
+      getSprintDetailData(sprintId)
+      // 更新完毕再设置为false
+      workItemSettingStore.setNeedUpdateWorkItemSummary(false)
+    }
+  }
+)
+
+const getSprintDetailData = (pSprintId) => {
+  getSprintDetail(pSprintId).then((res) => {
+    // sprintInfo.value = res
+    sprintName.value = res.name
+    sprintInfoData.value = [
+      { title: '所属项目', value: res.project_name },
+      { title: 'ID', value: res.id },
+      { title: '负责人', value: `${res.owner} - ${res.owner_name}` },
+      { title: '状态', value: status[res.status] },
+      { title: '需求数量', value: res.feature_count },
+      { title: '任务数量', value: res.task_count },
+      { title: '缺陷数量', value: res.bug_count },
+      { title: '开始时间', value: res.start_time },
+      { title: '预计完成时间', value: res.finish_time },
+      { title: '创建人', value: res.creator },
+      { title: '最后修改人', value: res.modifier },
+      { title: '创建时间', value: res.create_time },
+      { title: '修改时间', value: res.update_time }
+    ]
+  })
+}
+getSprintDetailData(sprintId)
 const onTabsChange = (activeKey) => {
   if (activeKey === '1') {
     router.push({ name: `/pm/sprints/:sprintId/features/list`, params: { sprintId: sprintId } })

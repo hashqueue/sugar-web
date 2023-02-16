@@ -102,6 +102,7 @@ import { computed, ref } from 'vue'
 import { createWorkItem } from '@/apis/pm/workItem'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
+import { workItemStore } from '@/stores/workItem'
 
 const props = defineProps({
   sprintInfo: {
@@ -122,7 +123,7 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
-// TODO 每次新增或删除通知SprintDetail.vue组件更新sprintInfo数据
+const workItemSettingStore = workItemStore()
 const priorityOptions = [
   { value: 0, label: '最低' },
   { value: 1, label: '较低' },
@@ -195,11 +196,15 @@ const onOk = () => {
       // 设置截止日期
       if (values.deadline) {
         values.deadline = values.deadline.format('YYYY-MM-DD HH:mm')
+      } else {
+        delete values.deadline
       }
       values.sprint = createUpdateForm.value.sprint
       values.type = createUpdateForm.value.type
       values.status = createUpdateForm.value.status
       createWorkItem(values).then(() => {
+        // 通知sprintDetail组件更新数据
+        workItemSettingStore.setNeedUpdateWorkItemSummary(true)
         emit('getLatestDataList')
         createUpdateFormRef.value.resetFields()
         emit('closeModal')
