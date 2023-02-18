@@ -13,7 +13,7 @@
       <div style="width: 100%; height: 1px; background-color: #586069"></div>
       <a-row :gutter="24">
         <a-col :span="18">
-          <a-tabs v-model:activeKey="contentActiveKey">
+          <a-tabs v-model:activeKey="contentActiveKey" @change="onContentActiveKeyChange">
             <a-tab-pane key="1" tab="详情">
               <a-divider orientation="left">基础信息</a-divider>
               <a-descriptions v-if="workItemInfo">
@@ -132,7 +132,54 @@
                 </a-form-item>
               </a-form>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="文件" force-render>Content of Tab Pane 2</a-tab-pane>
+            <a-tab-pane key="2" tab="文件" force-render>
+              <a-row :gutter="24" justify="space-between">
+                <a-col :span="4">文件列表</a-col>
+                <a-col :span="3" style="margin-right: 8px">
+                  <a-upload
+                    name="file"
+                    :action="userFileUploadUrl"
+                    :headers="userFileUploadHeaders"
+                    :data="{ work_item: workItemId }"
+                    :show-upload-list="false"
+                    @change="handleFileUploadChange"
+                  >
+                    <a-button><upload-outlined></upload-outlined>上传文件</a-button>
+                  </a-upload>
+                </a-col>
+              </a-row>
+              <a-list
+                class="demo-loadmore-list"
+                :loading="initLoading"
+                item-layout="horizontal"
+                :data-source="userFileList"
+              >
+                <template #renderItem="{ item }">
+                  <a-list-item>
+                    <template #actions>
+                      <a key="list-loadmore-edit" @click="downloadUserFile(item)">下载</a>
+                      <a key="list-loadmore-preview" @click="previewFile(item.file)">预览</a>
+                      <a-popconfirm
+                        title="确定删除该文件吗？"
+                        ok-text="确定"
+                        cancel-text="取消"
+                        @confirm="deleteFile(item.id)"
+                      >
+                        <a key="list-loadmore-delete">删除</a>
+                      </a-popconfirm>
+                    </template>
+                    <a-skeleton avatar :title="false" :loading="!!item.loading" active>
+                      <a-list-item-meta :description="`${item.size} 来自 ${item.creator}-${item.creator_name}`">
+                        <template #title>
+                          <p>{{ item.file_name.split('/')[item.file_name.split('/').length - 1] }}</p>
+                        </template>
+                      </a-list-item-meta>
+                      <div>{{ item.create_time }}</div>
+                    </a-skeleton>
+                  </a-list-item>
+                </template>
+              </a-list>
+            </a-tab-pane>
           </a-tabs>
         </a-col>
         <a-col :span="6">
@@ -143,7 +190,7 @@
             <a-col :span="22" class="height-100">
               <a-tabs v-model:activeKey="activityActiveKey">
                 <a-tab-pane key="x" tab="评论">
-                  <a-card>as</a-card>
+                  <a-card style="margin-bottom: 10px">as</a-card>
                   <a-card>as</a-card>
                   <a-comment class="comment">
                     <template #avatar>
@@ -181,7 +228,8 @@ import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { userStore } from '@/stores/user'
 import { updateWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
-import { createFile, updateFileWithPatch } from '@/apis/pm/userFile'
+import { updateFileWithPatch, getFileList, deleteFileDetail } from '@/apis/pm/userFile'
+import { downloadFile } from '@/utils/common'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -209,12 +257,44 @@ const props = defineProps({
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
 const userSettingStore = userStore()
+
 const contentActiveKey = ref('1')
+const createUpdateForm = ref({
+  name: '',
+  owner: null,
+  type: props.title === '修改需求' ? 0 : props.title === '修改任务' ? 1 : 2,
+  priority: null,
+  status: 0,
+  severity: null,
+  bug_type: null,
+  process_result: null,
+  desc: '',
+  deadline: '',
+  sprint: props.sprintInfo.id,
+  followers: []
+})
+const workItemInfo = ref(null)
+const createUpdateFormRef = ref()
+const createUpdateRules = {
+  name: [
+    { required: true, trigger: 'change', message: '标题不能为空!' },
+    { max: 64, trigger: 'change', message: '标题不能多于64位!' }
+  ],
+  owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
+  priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }],
+  status: [{ required: true, trigger: 'change', message: '工作项状态不能为空!' }]
+}
+const userFileUploadUrl = `http://${location.host}${import.meta.env.VITE_BASE_URL}/pm/files/`
+const userFileUploadHeaders = { Authorization: `Bearer ${userSettingStore.getToken}` }
+const userFileList = ref([])
+const initLoading = ref(false)
+const userUploadFileIds = ref([])
+
 const activityActiveKey = ref('x')
 const commentValue = ref('')
 const commentSubmitting = ref(false)
+
 const workItemTypeOptions = { 0: '需求', 1: '任务', 2: '缺陷' }
-const userUploadFileIds = ref([])
 const processResultOptions = [
   { value: 0, label: '不予处理' },
   { value: 1, label: '延期处理' },
@@ -310,31 +390,7 @@ const followersOptions = computed(() => {
   }
   return tmpOwnerArr
 })
-const createUpdateForm = ref({
-  name: '',
-  owner: null,
-  type: props.title === '修改需求' ? 0 : props.title === '修改任务' ? 1 : 2,
-  priority: null,
-  status: 0,
-  severity: null,
-  bug_type: null,
-  process_result: null,
-  desc: '',
-  deadline: '',
-  sprint: props.sprintInfo.id,
-  followers: []
-})
-const workItemInfo = ref(null)
-const createUpdateFormRef = ref()
-const createUpdateRules = {
-  name: [
-    { required: true, trigger: 'change', message: '标题不能为空!' },
-    { max: 64, trigger: 'change', message: '标题不能多于64位!' }
-  ],
-  owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
-  priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }],
-  status: [{ required: true, trigger: 'change', message: '工作项状态不能为空!' }]
-}
+
 watch(
   () => props.visible,
   () => {
@@ -352,6 +408,42 @@ watch(
     }
   }
 )
+const getUserFileList = () => {
+  initLoading.value = true
+  getFileList({ size: 50, work_item_id: props.workItemId }).then((res) => {
+    userFileList.value = res.results
+    initLoading.value = false
+  })
+}
+const downloadUserFile = (item) => {
+  message.warning('已经开始下载文件(无文件后缀的文件下载时会被自动添加.txt文件后缀)，请稍等片刻...')
+  const originUrlArr = item.file.split('/')
+  const url = `http://${location.host}/${originUrlArr.slice(3, originUrlArr.length).join('/')}`
+  downloadFile(url, item.file_name.split('/')[item.file_name.split('/').length - 1])
+}
+const previewFile = (url) => {
+  window.open(url)
+}
+const deleteFile = (fileId) => {
+  deleteFileDetail(fileId).then(() => {
+    getUserFileList()
+  })
+}
+const onContentActiveKeyChange = (activeKey) => {
+  if (activeKey === '2') {
+    // 文件列表
+    getUserFileList()
+  }
+}
+const handleFileUploadChange = (info) => {
+  if (info.file.status === 'done') {
+    // 文件上传成功
+    message.success(`文件 <${info.file.name}> 上传成功.`)
+    getUserFileList()
+  } else if (info.file.status === 'error') {
+    message.error(`文件 <${info.file.name}> 上传失败.`)
+  }
+}
 const handleCommentSubmit = () => {
   if (!commentValue.value) {
     message.error('评论内容不能为空！')
@@ -383,7 +475,9 @@ const onOk = () => {
         for (const userUploadFileId of userUploadFileIds.value) {
           updateFileWithPatch(userUploadFileId, formData)
         }
+        // 重置数据
         userUploadFileIds.value = []
+        contentActiveKey.value = '1'
       })
     })
     .catch((info) => {
@@ -394,6 +488,7 @@ const onCancel = () => {
   createUpdateFormRef.value.resetFields()
   emit('closeModal')
   userUploadFileIds.value = []
+  contentActiveKey.value = '1'
 }
 </script>
 

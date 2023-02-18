@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 /**
  * 生成权限树列表
  * @param originTreeData 原始树列表数据
@@ -123,4 +125,20 @@ export const isSelectOptionsIncludeItemData = (originOptions, data, OriginOption
     }
   }
   return result
+}
+
+export const downloadFile = (url, fileName) => {
+  axios
+    .get(url, { responseType: 'blob' })
+    .then((res) => {
+      const blob = new Blob([res.data])
+      const tmpLink = document.createElement('a')
+      tmpLink.href = window.URL.createObjectURL(blob)
+      tmpLink.download = fileName
+      tmpLink.click()
+      window.URL.revokeObjectURL(tmpLink.href)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 }
