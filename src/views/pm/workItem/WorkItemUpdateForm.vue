@@ -181,6 +181,7 @@ import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { userStore } from '@/stores/user'
 import { updateWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
+import { createFile, updateFileWithPatch } from '@/apis/pm/userFile'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 
@@ -190,7 +191,7 @@ const props = defineProps({
     required: true
   },
   workItemId: {
-    type: [Number, null],
+    type: Number,
     required: false
   },
   visible: {
@@ -213,6 +214,7 @@ const activityActiveKey = ref('x')
 const commentValue = ref('')
 const commentSubmitting = ref(false)
 const workItemTypeOptions = { 0: '需求', 1: '任务', 2: '缺陷' }
+const userUploadFileIds = ref([])
 const processResultOptions = [
   { value: 0, label: '不予处理' },
   { value: 1, label: '延期处理' },
@@ -265,7 +267,35 @@ const severityOptions = [
   { value: 4, label: '严重' },
   { value: 5, label: '致命' }
 ]
-const mdEditorOptions = ref({ height: '500px', width: '100%' })
+const mdEditorOptions = ref({
+  height: '650px',
+  width: '100%',
+  upload: {
+    url: `${import.meta.env.VITE_BASE_URL}/pm/files/`,
+    headers: { Authorization: `Bearer ${userSettingStore.getToken}` },
+    fieldName: 'file',
+    max: 500 * 1024 * 1024,
+    format(files, responseText) {
+      const resp = JSON.parse(responseText)
+      const result = {
+        code: 0,
+        msg: resp.message,
+        data: {
+          errFiles: [],
+          succMap: {}
+        }
+      }
+      if (resp.code === 20000) {
+        const fileNameList = resp.data.file_name.split('/')
+        result.data.succMap[fileNameList[fileNameList.length - 1]] = resp.data.file
+        userUploadFileIds.value.push(resp.data.id)
+      } else {
+        result.code = 1
+      }
+      return JSON.stringify(result)
+    }
+  }
+})
 const ownerOptions = computed(() => {
   const tmpOwnerArr = []
   for (const item of props.allUserList) {
@@ -347,6 +377,13 @@ const onOk = () => {
         emit('getLatestDataList')
         createUpdateFormRef.value.resetFields()
         emit('closeModal')
+        // 将上传的文件跟workItem关联起来
+        const formData = new FormData()
+        formData.append('work_item', props.workItemId)
+        for (const userUploadFileId of userUploadFileIds.value) {
+          updateFileWithPatch(userUploadFileId, formData)
+        }
+        userUploadFileIds.value = []
       })
     })
     .catch((info) => {
@@ -356,6 +393,7 @@ const onOk = () => {
 const onCancel = () => {
   createUpdateFormRef.value.resetFields()
   emit('closeModal')
+  userUploadFileIds.value = []
 }
 </script>
 

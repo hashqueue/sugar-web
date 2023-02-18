@@ -100,9 +100,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { createWorkItem } from '@/apis/pm/workItem'
+import { updateFileWithPatch } from '@/apis/pm/userFile'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 import { workItemStore } from '@/stores/workItem'
+import { userStore } from '@/stores/user'
 
 const props = defineProps({
   sprintInfo: {
@@ -124,6 +126,8 @@ const props = defineProps({
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
 const workItemSettingStore = workItemStore()
+const userSettingStore = userStore()
+const userUploadFileIds = ref([])
 const priorityOptions = [
   { value: 0, label: '最低' },
   { value: 1, label: '较低' },
@@ -151,7 +155,35 @@ const severityOptions = [
   { value: 4, label: '严重' },
   { value: 5, label: '致命' }
 ]
-const mdEditorOptions = ref({ height: '500px', width: '100%' })
+const mdEditorOptions = ref({
+  height: '650px',
+  width: '100%',
+  upload: {
+    url: `${import.meta.env.VITE_BASE_URL}/pm/files/`,
+    headers: { Authorization: `Bearer ${userSettingStore.getToken}` },
+    fieldName: 'file',
+    max: 500 * 1024 * 1024,
+    format(files, responseText) {
+      const resp = JSON.parse(responseText)
+      const result = {
+        code: 0,
+        msg: resp.message,
+        data: {
+          errFiles: [],
+          succMap: {}
+        }
+      }
+      if (resp.code === 20000) {
+        const fileNameList = resp.data.file_name.split('/')
+        result.data.succMap[fileNameList[fileNameList.length - 1]] = resp.data.file
+        userUploadFileIds.value.push(resp.data.id)
+      } else {
+        result.code = 1
+      }
+      return JSON.stringify(result)
+    }
+  }
+})
 const ownerOptions = computed(() => {
   const tmpOwnerArr = []
   for (const item of props.allUserList) {
@@ -202,12 +234,19 @@ const onOk = () => {
       values.sprint = createUpdateForm.value.sprint
       values.type = createUpdateForm.value.type
       values.status = createUpdateForm.value.status
-      createWorkItem(values).then(() => {
+      createWorkItem(values).then((res) => {
         // 通知sprintDetail组件更新数据
         workItemSettingStore.setNeedUpdateWorkItemSummary(true)
         emit('getLatestDataList')
         createUpdateFormRef.value.resetFields()
         emit('closeModal')
+        // 将上传的文件跟workItem关联起来
+        const formData = new FormData()
+        formData.append('work_item', res.id)
+        for (const userUploadFileId of userUploadFileIds.value) {
+          updateFileWithPatch(userUploadFileId, formData)
+        }
+        userUploadFileIds.value = []
       })
     })
     .catch((info) => {
@@ -217,6 +256,7 @@ const onOk = () => {
 const onCancel = () => {
   createUpdateFormRef.value.resetFields()
   emit('closeModal')
+  userUploadFileIds.value = []
 }
 </script>
 
