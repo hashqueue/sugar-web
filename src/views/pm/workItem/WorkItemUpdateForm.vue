@@ -13,7 +13,7 @@
       <div style="width: 100%; height: 1px; background-color: #586069"></div>
       <a-row :gutter="24">
         <a-col :span="18">
-          <a-tabs v-model:activeKey="contentActiveKey" @change="onContentActiveKeyChange">
+          <a-tabs v-model:activeKey="contentActiveKey">
             <a-tab-pane key="1" tab="详情">
               <a-divider orientation="left">基础信息</a-divider>
               <a-descriptions v-if="workItemInfo">
@@ -169,7 +169,7 @@
                       </a-popconfirm>
                     </template>
                     <a-skeleton avatar :title="false" :loading="!!item.loading" active>
-                      <a-list-item-meta :description="`${item.size} 来自 ${item.creator}-${item.creator_name}`">
+                      <a-list-item-meta :description="`${item.size} 来自 ${item.creator} - ${item.creator_name}`">
                         <template #title>
                           <p>{{ item.file_name.split('/')[item.file_name.split('/').length - 1] }}</p>
                         </template>
@@ -190,15 +190,41 @@
             <a-col :span="22" class="height-100">
               <a-tabs v-model:activeKey="activityActiveKey">
                 <a-tab-pane key="x" tab="评论">
-                  <a-card style="margin-bottom: 10px">as</a-card>
-                  <a-card>as</a-card>
+                  <a-list
+                    v-if="comments.length"
+                    :data-source="comments"
+                    :header="`${comments.length} 条评论`"
+                    item-layout="horizontal"
+                  >
+                    <template #renderItem="{ item }">
+                      <a-list-item>
+                        <a-comment
+                          :author="`${item.creator} - ${item.creator_name}`"
+                          :content="item.content"
+                          :datetime="item.create_time"
+                        />
+                      </a-list-item>
+                      <a-list-item>
+                        <template #actions>
+                          <a-popconfirm
+                            title="确定删除该评论吗？"
+                            ok-text="确定"
+                            cancel-text="取消"
+                            @confirm="deleteComment(item.id)"
+                          >
+                            <a key="list-loadmore-delete">删除</a>
+                          </a-popconfirm>
+                        </template>
+                      </a-list-item>
+                    </template>
+                  </a-list>
                   <a-comment class="comment">
                     <template #avatar>
                       <a-avatar :src="userSettingStore.getUserInfo.avatar" alt="User Avatar" />
                     </template>
                     <template #content>
                       <a-form-item>
-                        <a-textarea v-model:value="commentValue" :rows="2" />
+                        <a-textarea v-model:value="commentValue" :rows="5" />
                       </a-form-item>
                       <a-form-item>
                         <a-button
@@ -229,6 +255,7 @@ import dayjs from 'dayjs'
 import { userStore } from '@/stores/user'
 import { updateWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
 import { updateFileWithPatch, getFileList, deleteFileDetail } from '@/apis/pm/userFile'
+import { createComment, getCommentList, deleteCommentDetail } from '@/apis/pm/comment'
 import { downloadFile } from '@/utils/common'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
@@ -239,7 +266,7 @@ const props = defineProps({
     required: true
   },
   workItemId: {
-    type: Number,
+    type: [Number, null],
     required: false
   },
   visible: {
@@ -291,6 +318,7 @@ const initLoading = ref(false)
 const userUploadFileIds = ref([])
 
 const activityActiveKey = ref('x')
+const comments = ref([])
 const commentValue = ref('')
 const commentSubmitting = ref(false)
 
@@ -405,6 +433,8 @@ watch(
         }
         createUpdateForm.value = workItemObj
       })
+      getUserFileList()
+      getUserCommentList()
     }
   }
 )
@@ -416,7 +446,7 @@ const getUserFileList = () => {
   })
 }
 const downloadUserFile = (item) => {
-  message.warning('已经开始下载文件(无文件后缀的文件下载时会被自动添加.txt文件后缀)，请稍等片刻...')
+  message.info('已经开始下载文件(无文件后缀的文件下载时会被自动添加.txt文件后缀)，请稍等片刻...')
   const originUrlArr = item.file.split('/')
   const url = `http://${location.host}/${originUrlArr.slice(3, originUrlArr.length).join('/')}`
   downloadFile(url, item.file_name.split('/')[item.file_name.split('/').length - 1])
@@ -428,12 +458,6 @@ const deleteFile = (fileId) => {
   deleteFileDetail(fileId).then(() => {
     getUserFileList()
   })
-}
-const onContentActiveKeyChange = (activeKey) => {
-  if (activeKey === '2') {
-    // 文件列表
-    getUserFileList()
-  }
 }
 const handleFileUploadChange = (info) => {
   if (info.file.status === 'done') {
@@ -450,8 +474,21 @@ const handleCommentSubmit = () => {
     return
   }
   commentSubmitting.value = true
-  console.log(commentValue.value)
-  commentSubmitting.value = false
+  createComment({ content: commentValue.value, work_item: props.workItemId }).then(() => {
+    commentValue.value = ''
+    getUserCommentList()
+    commentSubmitting.value = false
+  })
+}
+const getUserCommentList = () => {
+  getCommentList({ size: 50, work_item_id: props.workItemId }).then((res) => {
+    comments.value = res.results
+  })
+}
+const deleteComment = (commentId) => {
+  deleteCommentDetail(commentId).then(() => {
+    getUserCommentList()
+  })
 }
 const onOk = () => {
   createUpdateFormRef.value
@@ -475,9 +512,12 @@ const onOk = () => {
         for (const userUploadFileId of userUploadFileIds.value) {
           updateFileWithPatch(userUploadFileId, formData)
         }
-        // 重置数据
+        // 手动重置数据
         userUploadFileIds.value = []
         contentActiveKey.value = '1'
+        activityActiveKey.value = 'x'
+        comments.value = []
+        commentValue.value = ''
       })
     })
     .catch((info) => {
@@ -489,6 +529,9 @@ const onCancel = () => {
   emit('closeModal')
   userUploadFileIds.value = []
   contentActiveKey.value = '1'
+  activityActiveKey.value = 'x'
+  comments.value = []
+  commentValue.value = ''
 }
 </script>
 
