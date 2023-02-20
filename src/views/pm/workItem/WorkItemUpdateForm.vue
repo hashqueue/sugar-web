@@ -238,7 +238,35 @@
                     </template>
                   </a-comment>
                 </a-tab-pane>
-                <a-tab-pane key="y" tab="变更记录"></a-tab-pane>
+                <a-tab-pane key="y" tab="变更记录">
+                  <a-list
+                    v-if="changelogs.length"
+                    :data-source="changelogs"
+                    :header="`${changelogs.length} 条记录`"
+                    item-layout="horizontal"
+                  >
+                    <template #renderItem="{ item }">
+                      <a-list-item>
+                        <a-comment :author="`${item.creator} - ${item.creator_name}`" :datetime="item.create_time">
+                          <template #content>
+                            <a-form-item>
+                              <template v-for="(changelogItem, index) in item.changelog" :key="index">
+                                <div v-if="changelogItem.key !== 'desc'" style="margin-top: 2px">
+                                  更新了 <a-tag color="processing">{{ changelogItem.desc }}</a-tag
+                                  >:
+                                  <span style="color: #ff4d4f"
+                                    ><del>{{ changelogItem.origin }}</del></span
+                                  >
+                                  -> <span style="color: #52c41a">{{ changelogItem.current }}</span>
+                                </div>
+                              </template>
+                            </a-form-item>
+                          </template>
+                        </a-comment>
+                      </a-list-item>
+                    </template>
+                  </a-list>
+                </a-tab-pane>
               </a-tabs>
             </a-col>
           </a-row>
@@ -256,6 +284,7 @@ import { userStore } from '@/stores/user'
 import { updateWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
 import { updateFileWithPatch, getFileList, deleteFileDetail } from '@/apis/pm/userFile'
 import { createComment, getCommentList, deleteCommentDetail } from '@/apis/pm/comment'
+import { getChangelogList } from '@/apis/pm/changelog'
 import { downloadFile } from '@/utils/common'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
@@ -321,6 +350,8 @@ const activityActiveKey = ref('x')
 const comments = ref([])
 const commentValue = ref('')
 const commentSubmitting = ref(false)
+
+const changelogs = ref([])
 
 const workItemTypeOptions = { 0: '需求', 1: '任务', 2: '缺陷' }
 const processResultOptions = [
@@ -435,6 +466,9 @@ watch(
       })
       getUserFileList()
       getUserCommentList()
+      getChangelogList({ size: 50, work_item_id: props.workItemId }).then((res) => {
+        changelogs.value = res.results
+      })
     }
   }
 )
@@ -518,6 +552,7 @@ const onOk = () => {
         activityActiveKey.value = 'x'
         comments.value = []
         commentValue.value = ''
+        changelogs.value = []
       })
     })
     .catch((info) => {
@@ -532,6 +567,7 @@ const onCancel = () => {
   activityActiveKey.value = 'x'
   comments.value = []
   commentValue.value = ''
+  changelogs.value = []
 }
 </script>
 
