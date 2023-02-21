@@ -5,6 +5,7 @@
       :data-source="dataList"
       :columns="columns"
       :row-key="'id'"
+      :scroll="{ x: '100%' }"
       :loading="tableLoading"
       :pagination="paginationData"
       @on-page-change="onPageChange"
@@ -54,6 +55,7 @@ import { deleteSprintDetail, getSprintList } from '@/apis/pm/sprint'
 import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
+import { projectStore } from '@/stores/project'
 
 const props = defineProps({
   projectInfo: {
@@ -65,6 +67,7 @@ const props = defineProps({
     required: true
   }
 })
+const projectSettingStore = projectStore()
 const router = useRouter()
 const sprintId = ref(null)
 const allUserDataList = ref([])
@@ -77,53 +80,89 @@ const tableLoading = ref(false)
 const paginationData = ref({})
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id'
-  },
-  {
     title: '迭代名',
     dataIndex: 'name',
-    key: 'name'
+    key: 'name',
+    width: 350,
+    fixed: 'left'
+  },
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+    width: 70
   },
   {
     title: '状态',
     dataIndex: 'status',
-    key: 'status'
+    key: 'status',
+    width: 100
   },
   {
     title: '负责人',
     dataIndex: 'owner',
-    key: 'owner'
+    key: 'owner',
+    width: 150
   },
   {
     title: '需求数量',
     dataIndex: 'feature_count',
-    key: 'feature_count'
+    key: 'feature_count',
+    width: 100
   },
   {
     title: '任务数量',
     dataIndex: 'task_count',
-    key: 'task_count'
+    key: 'task_count',
+    width: 100
   },
   {
     title: '缺陷数量',
     dataIndex: 'bug_count',
-    key: 'bug_count'
+    key: 'bug_count',
+    width: 100
+  },
+  {
+    title: '开始时间',
+    dataIndex: 'start_time',
+    key: 'start_time',
+    width: 180
+  },
+  {
+    title: '完成时间',
+    dataIndex: 'finish_time',
+    key: 'finish_time',
+    width: 180
   },
   {
     title: '创建人',
     dataIndex: 'creator',
-    key: 'creator'
+    key: 'creator',
+    width: 150
+  },
+  {
+    title: '最后修改人',
+    dataIndex: 'modifier',
+    key: 'modifier',
+    width: 150
   },
   {
     title: '创建时间',
     dataIndex: 'create_time',
-    key: 'create_time'
+    key: 'create_time',
+    width: 180
+  },
+  {
+    title: '修改时间',
+    dataIndex: 'update_time',
+    key: 'update_time',
+    width: 180
   },
   {
     title: '操作',
-    key: 'action'
+    key: 'action',
+    width: 160,
+    fixed: 'right'
   }
 ]
 
@@ -181,6 +220,8 @@ const viewSprintDetail = (record) => {
 const deleteSprint = (scriptId) => {
   deleteSprintDetail(scriptId).then(() => {
     getSprintListData()
+    // 通知ProjectDetail组件更新数据
+    projectSettingStore.setNeedUpdateProjectInfo(true)
   })
 }
 </script>

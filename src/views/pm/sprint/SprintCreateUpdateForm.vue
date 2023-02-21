@@ -56,6 +56,7 @@ import { computed, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import { createSprint, updateSprint, getSprintDetail } from '@/apis/pm/sprint'
 import StandardModal from '@/components/StandardModal.vue'
+import { projectStore } from '@/stores/project'
 
 const props = defineProps({
   projectName: {
@@ -84,6 +85,7 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['closeModal', 'getLatestDataList'])
+const projectSettingStore = projectStore()
 const statusOptions = [
   { value: 0, label: '未开始' },
   { value: 1, label: '进行中' },
@@ -166,6 +168,8 @@ const onOk = () => {
         })
       } else {
         createSprint(values).then(() => {
+          // 通知ProjectDetail组件更新数据
+          projectSettingStore.setNeedUpdateProjectInfo(true)
           emit('getLatestDataList')
           createUpdateFormRef.value.resetFields()
           emit('closeModal')

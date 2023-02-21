@@ -20,19 +20,34 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProjectDetail } from '@/apis/pm/project'
 import SprintList from '@/views/pm/sprint/SprintList.vue'
+import { projectStore } from '@/stores/project'
 
 const route = useRoute()
 const projectId = route.params.projectId
 const projectInfo = ref(undefined)
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
+const projectSettingStore = projectStore()
 
-getProjectDetail(projectId).then((res) => {
-  projectInfo.value = res
-})
+const getProjectInfo = () => {
+  getProjectDetail(projectId).then((res) => {
+    projectInfo.value = res
+  })
+}
+getProjectInfo()
+watch(
+  () => projectSettingStore.getNeedUpdateProjectInfo,
+  (newNeedUpdateProjectInfo) => {
+    if (newNeedUpdateProjectInfo) {
+      getProjectInfo()
+      // 更新完毕再设置为false
+      projectSettingStore.setNeedUpdateProjectInfo(false)
+    }
+  }
+)
 </script>
 
 <style scoped></style>

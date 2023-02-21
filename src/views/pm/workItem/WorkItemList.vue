@@ -6,6 +6,7 @@
     :data-source="dataList"
     :columns="columns"
     :row-key="'id'"
+    :scroll="{ x: '100%' }"
     :loading="tableLoading"
     :pagination="paginationData"
     @on-page-change="onPageChange"
@@ -120,43 +121,65 @@ const tableLoading = ref(false)
 const paginationData = ref({})
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id'
-  },
-  {
     title: `${workItemTypes[props.workItemType]}名`,
     dataIndex: 'name',
-    key: 'name'
+    key: 'name',
+    width: 550,
+    fixed: 'left'
+  },
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+    width: 70
   },
   {
     title: '状态',
     dataIndex: 'status',
-    key: 'status'
+    key: 'status',
+    width: 100
   },
   {
     title: '优先级',
     dataIndex: 'priority',
-    key: 'priority'
+    key: 'priority',
+    width: 80
   },
   {
     title: '负责人',
     dataIndex: 'owner',
-    key: 'owner'
+    key: 'owner',
+    width: 150
   },
   {
     title: '创建人',
     dataIndex: 'creator',
-    key: 'creator'
+    key: 'creator',
+    width: 150
+  },
+  {
+    title: '最后修改人',
+    dataIndex: 'modifier',
+    key: 'modifier',
+    width: 150
   },
   {
     title: '创建时间',
     dataIndex: 'create_time',
-    key: 'create_time'
+    key: 'create_time',
+    width: 180
+  },
+  {
+    title: '修改时间',
+    dataIndex: 'update_time',
+    key: 'update_time',
+    width: 180
   },
   {
     title: '操作',
-    key: 'action'
+    key: 'action',
+    width: 120,
+    fixed: 'right'
   }
 ]
 
