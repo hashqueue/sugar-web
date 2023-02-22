@@ -1,6 +1,7 @@
 <template>
+  <slot name="tableFilter"></slot>
   <a-table
-    v-if="dataSource.length"
+    class="standard-table"
     :columns="columns"
     :data-source="dataSource"
     :scroll="scroll"
@@ -65,4 +66,8 @@ const onPageChange = (pagination, filters, sorter, { currentDataSource }) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.standard-table {
+  margin-top: 16px;
+}
+</style>

@@ -1,7 +1,4 @@
 <template>
-  <a-button class="add-btn" type="primary" @click="createWorkItem" v-permission="'新增工作项'">{{
-    `新增${workItemTypes[workItemType]}`
-  }}</a-button>
   <standard-table
     :data-source="dataList"
     :columns="columns"
@@ -11,6 +8,94 @@
     :pagination="paginationData"
     @on-page-change="onPageChange"
   >
+    <template #tableFilter>
+      <a-form ref="filterFormRef" :model="filterForm" :wrapper-col="{ span: 18 }" @finish="handleFilterFinish">
+        <a-row>
+          <a-col :span="6">
+            <a-form-item name="name" :label="`${workItemTypes[workItemType]}名&nbsp&nbsp`">
+              <a-input v-model:value="filterForm.name" :placeholder="`请输入${workItemTypes[workItemType]}名`" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="owner" label="负&nbsp&nbsp责&nbsp&nbsp人">
+              <a-input v-model:value="filterForm.owner" placeholder="请输入负责人(英文用户名)" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="desc" label="描&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp述">
+              <a-input v-model:value="filterForm.desc" placeholder="请输入描述" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="creator" label="创建人">
+              <a-input v-model:value="filterForm.creator" placeholder="请输入创建人" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row v-if="workItemType === 2">
+          <a-col :span="6">
+            <a-form-item name="bug_type" label="bug类型">
+              <a-select
+                v-model:value="filterForm.bug_type"
+                placeholder="请选择bug类型"
+                :options="bugTypeOptions"
+                :allow-clear="true"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="process_result" label="处理结果">
+              <a-select
+                v-model:value="filterForm.process_result"
+                placeholder="请选择处理结果"
+                :options="processResultOptions"
+                :allow-clear="true"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="severity" label="严重程度">
+              <a-select
+                v-model:value="filterForm.severity"
+                placeholder="请选择严重程度"
+                :options="severityOptions"
+                :allow-clear="true"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="6">
+            <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp态">
+              <a-select
+                v-model:value="filterForm.status"
+                placeholder="请选择状态"
+                :options="statusOptions"
+                :allow-clear="true"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="priority" label="优&nbsp&nbsp先&nbsp&nbsp级">
+              <a-select
+                v-model:value="filterForm.priority"
+                placeholder="请选择优先级"
+                :options="priorityOptions"
+                :allow-clear="true"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-form-item>
+          <a-button type="primary" html-type="submit">查询</a-button>
+          <a-button style="margin-left: 10px" @click="resetFilterForm">重置</a-button>
+        </a-form-item>
+      </a-form>
+      <a-divider />
+      <a-button type="primary" @click="createWorkItem" v-permission="'新增工作项'">{{
+        `新增${workItemTypes[workItemType]}`
+      }}</a-button>
+    </template>
     <template #action="{ column, record }">
       <template v-if="column.key === 'action'">
         <span>
@@ -73,6 +158,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { message } from 'ant-design-vue'
 import { deleteWorkItemDetail, getWorkItemList } from '@/apis/pm/workItem'
 import { getSprintDetail } from '@/apis/pm/sprint'
 import WorkItemCreateForm from './WorkItemCreateForm.vue'
@@ -80,6 +166,7 @@ import WorkItemUpdateForm from './WorkItemUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import { getAllUserList } from '@/apis/system/user'
 import { workItemStore } from '@/stores/workItem'
+import { bugTypeOptions, processResultOptions, statusOptions, priorityOptions, severityOptions } from '@/utils/common'
 
 const props = defineProps({
   workItemType: {
@@ -124,7 +211,7 @@ const columns = [
     title: `${workItemTypes[props.workItemType]}名`,
     dataIndex: 'name',
     key: 'name',
-    width: 550,
+    width: 500,
     fixed: 'left'
   },
   {
@@ -183,6 +270,59 @@ const columns = [
   }
 ]
 
+const filterFormRef = ref()
+const filterForm = ref({
+  name: '',
+  owner: '',
+  desc: '',
+  creator: '',
+  status: null,
+  priority: null,
+  bug_type: null,
+  process_result: null,
+  severity: null
+})
+
+const handleFilterFinish = (values) => {
+  // const values = filterForm.value
+  let tag = true
+  for (const valuesKey in values) {
+    if (values[valuesKey] === undefined || values[valuesKey] === '' || values[valuesKey] === null) {
+      delete values[valuesKey]
+    } else {
+      tag = false
+    }
+  }
+  if (!tag) {
+    // console.log('valid', values)
+    // 添加新的filter字段
+    for (const valuesKey in values) {
+      workItemQueryParams.value[valuesKey] = values[valuesKey]
+    }
+    // console.log(workItemQueryParams.value)
+    // 删除不需要的filter字段
+    for (const valueKey in workItemQueryParams.value) {
+      if (valueKey in filterForm.value && !(valueKey in values)) {
+        delete workItemQueryParams.value[valueKey]
+      }
+    }
+    // console.log(workItemQueryParams.value)
+    getWorkItemListData()
+  } else {
+    message.error('请至少填写一项，再进行筛选！')
+  }
+  // console.log('filterForm.value', filterForm.value)
+}
+const resetFilterForm = () => {
+  filterFormRef.value.resetFields()
+  for (const valueKey in filterForm.value) {
+    if (valueKey in workItemQueryParams.value) {
+      delete workItemQueryParams.value[valueKey]
+    }
+  }
+  getWorkItemListData()
+}
+
 getSprintDetail(props.sprintId).then((res) => {
   sprintInfo.value = res
 })
@@ -196,7 +336,7 @@ const getWorkItemListData = () => {
     paginationData.value = {
       total: res.count,
       current: res.current_page,
-      pageSize: 10,
+      pageSize: res.page_size,
       pageSizeOptions: ['10', '20', '30', '40', '50'],
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
@@ -213,7 +353,7 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
     paginationData.value = {
       total: res.count,
       current: res.current_page,
-      pageSize: pagination.pageSize,
+      pageSize: res.page_size,
       pageSizeOptions: ['10', '20', '30', '40', '50'],
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
@@ -247,8 +387,4 @@ const deleteWorkItem = (scriptId) => {
 }
 </script>
 
-<style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
-</style>
+<style scoped></style>

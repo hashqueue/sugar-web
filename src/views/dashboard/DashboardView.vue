@@ -109,7 +109,24 @@ const pieOption = {
     }
   ]
 }
-const pythonCode = ref("class Meta:\n    model = 'User'\n    fields = ('results', 'count')\n\n")
+const pythonCode = ref(
+  '# @FileName: custom_server_error_500_handler.py\n' +
+    '\n' +
+    'from django.http import JsonResponse\n' +
+    'from rest_framework import status\n' +
+    '\n' +
+    '\n' +
+    'def server_error(request, *args, **kwargs):\n' +
+    '    """\n' +
+    '    Generic 500 error handler.\n' +
+    '    """\n' +
+    '    data = {\n' +
+    "        'code': 40000,\n" +
+    "        'message': '服务器开小差了(500)',\n" +
+    "        'data': None\n" +
+    '    }\n' +
+    '    return JsonResponse(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)\n'
+)
 const jsonCode = ref(
   '{\n' +
     '  "username": "test",\n' +

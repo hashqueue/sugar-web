@@ -105,6 +105,7 @@ import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 import { workItemStore } from '@/stores/workItem'
 import { userStore } from '@/stores/user'
+import { bugTypeOptions, priorityOptions, severityOptions } from '@/utils/common'
 
 const props = defineProps({
   sprintInfo: {
@@ -128,33 +129,6 @@ const emit = defineEmits(['closeModal', 'getLatestDataList'])
 const workItemSettingStore = workItemStore()
 const userSettingStore = userStore()
 const userUploadFileIds = ref([])
-const priorityOptions = [
-  { value: 0, label: '最低' },
-  { value: 1, label: '较低' },
-  { value: 2, label: '普通' },
-  { value: 3, label: '较高' },
-  { value: 4, label: '最高' }
-]
-const bugTypeOptions = [
-  { value: 0, label: '功能问题' },
-  { value: 1, label: '性能问题' },
-  { value: 2, label: '接口问题' },
-  { value: 3, label: '安全问题' },
-  { value: 4, label: 'UI界面问题' },
-  { value: 5, label: '易用性问题' },
-  { value: 6, label: '兼容问题' },
-  { value: 7, label: '数据问题' },
-  { value: 8, label: '逻辑问题' },
-  { value: 9, label: '需求问题' }
-]
-const severityOptions = [
-  { value: 0, label: '保留' },
-  { value: 1, label: '建议' },
-  { value: 2, label: '提示' },
-  { value: 3, label: '一般' },
-  { value: 4, label: '严重' },
-  { value: 5, label: '致命' }
-]
 const mdEditorOptions = ref({
   height: '650px',
   width: '100%',

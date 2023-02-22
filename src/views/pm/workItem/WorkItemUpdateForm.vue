@@ -288,6 +288,7 @@ import { getChangelogList } from '@/apis/pm/changelog'
 import { downloadFile } from '@/utils/common'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
+import { bugTypeOptions, processResultOptions, statusOptions, priorityOptions, severityOptions } from '@/utils/common'
 
 const props = defineProps({
   sprintInfo: {
@@ -354,58 +355,6 @@ const commentSubmitting = ref(false)
 const changelogs = ref([])
 
 const workItemTypeOptions = { 0: '需求', 1: '任务', 2: '缺陷' }
-const processResultOptions = [
-  { value: 0, label: '不予处理' },
-  { value: 1, label: '延期处理' },
-  { value: 2, label: '外部原因' },
-  { value: 3, label: '需求变更' },
-  { value: 4, label: '转需求' },
-  { value: 5, label: '挂起' },
-  { value: 6, label: '设计如此' },
-  { value: 7, label: '重复缺陷' },
-  { value: 8, label: '无法重现' }
-]
-const statusOptions = [
-  { value: 0, label: '未开始' },
-  { value: 1, label: '待处理' },
-  { value: 2, label: '重新打开' },
-  { value: 3, label: '进行中' },
-  { value: 4, label: '实现中' },
-  { value: 5, label: '已完成' },
-  { value: 6, label: '修复中' },
-  { value: 7, label: '已实现' },
-  { value: 8, label: '关闭' },
-  { value: 9, label: '已修复' },
-  { value: 10, label: '已验证' },
-  { value: 11, label: '已拒绝' }
-]
-const priorityOptions = [
-  { value: 0, label: '最低' },
-  { value: 1, label: '较低' },
-  { value: 2, label: '普通' },
-  { value: 3, label: '较高' },
-  { value: 4, label: '最高' }
-]
-const bugTypeOptions = [
-  { value: 0, label: '功能问题' },
-  { value: 1, label: '性能问题' },
-  { value: 2, label: '接口问题' },
-  { value: 3, label: '安全问题' },
-  { value: 4, label: 'UI界面问题' },
-  { value: 5, label: '易用性问题' },
-  { value: 6, label: '兼容问题' },
-  { value: 7, label: '数据问题' },
-  { value: 8, label: '逻辑问题' },
-  { value: 9, label: '需求问题' }
-]
-const severityOptions = [
-  { value: 0, label: '保留' },
-  { value: 1, label: '建议' },
-  { value: 2, label: '提示' },
-  { value: 3, label: '一般' },
-  { value: 4, label: '严重' },
-  { value: 5, label: '致命' }
-]
 const mdEditorOptions = ref({
   height: '650px',
   width: '100%',
