@@ -1,6 +1,5 @@
 <template>
   <a-card title="迭代列表" class="sprint-list">
-    <a-button class="add-btn" type="primary" @click="createSprint" v-permission="'新增迭代'">新增迭代</a-button>
     <standard-table
       :data-source="dataList"
       :columns="columns"
@@ -10,6 +9,43 @@
       :pagination="paginationData"
       @on-page-change="onPageChange"
     >
+      <template #tableFilter>
+        <a-form ref="filterFormRef" :model="filterForm" :wrapper-col="{ span: 18 }" @finish="handleFilterFinish">
+          <a-row>
+            <a-col :span="6">
+              <a-form-item name="name" label="迭代名">
+                <a-input v-model:value="filterForm.name" placeholder="迭代名" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="owner" label="负责人">
+                <a-input v-model:value="filterForm.owner" placeholder="请输入负责人(英文用户名)" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="status" label="状态">
+                <a-select
+                  v-model:value="filterForm.status"
+                  placeholder="请选择状态"
+                  :options="statusOptions"
+                  :allow-clear="true"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="creator" label="创建人">
+                <a-input v-model:value="filterForm.creator" placeholder="请输入创建人" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-form-item>
+            <a-button type="primary" html-type="submit">查询</a-button>
+            <a-button style="margin-left: 10px" @click="resetFilterForm">重置</a-button>
+          </a-form-item>
+        </a-form>
+        <a-divider />
+        <a-button type="primary" @click="createSprint" v-permission="'新增迭代'">新增迭代</a-button>
+      </template>
       <template #action="{ column, record }">
         <template v-if="column.key === 'action'">
           <span>
@@ -30,7 +66,9 @@
         <template v-else-if="column.key === 'id'">#{{ record.id }}</template>
         <template v-else-if="column.key === 'owner'">{{ record.owner }} - {{ record.owner_name }}</template>
         <template v-else-if="column.key === 'status'">
-          <a-tag color="geekblue">{{ status[record.status] }}</a-tag>
+          <a-tag v-if="record.status === 0">{{ status[record.status] }}</a-tag>
+          <a-tag color="geekblue" v-else-if="record.status === 1">{{ status[record.status] }}</a-tag>
+          <a-tag color="green" v-else>{{ status[record.status] }}</a-tag>
         </template>
       </template>
     </standard-table>
@@ -51,6 +89,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
 import { deleteSprintDetail, getSprintList } from '@/apis/pm/sprint'
 import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
@@ -73,6 +112,11 @@ const sprintId = ref(null)
 const allUserDataList = ref([])
 const dataList = ref([])
 const status = { 0: '未开始', 1: '进行中', 2: '已完成' }
+const statusOptions = [
+  { value: 0, label: '未开始' },
+  { value: 1, label: '进行中' },
+  { value: 2, label: '已完成' }
+]
 const visible = ref(false)
 const title = ref('新增迭代')
 const sprintQueryParams = ref({ project_id: props.projectId })
@@ -166,6 +210,54 @@ const columns = [
   }
 ]
 
+const filterFormRef = ref()
+const filterForm = ref({
+  name: '',
+  owner: '',
+  creator: '',
+  status: null
+})
+
+const handleFilterFinish = (values) => {
+  // const values = filterForm.value
+  let tag = true
+  for (const valuesKey in values) {
+    if (values[valuesKey] === undefined || values[valuesKey] === '' || values[valuesKey] === null) {
+      delete values[valuesKey]
+    } else {
+      tag = false
+    }
+  }
+  if (!tag) {
+    // console.log('valid', values)
+    // 添加新的filter字段
+    for (const valuesKey in values) {
+      sprintQueryParams.value[valuesKey] = values[valuesKey]
+    }
+    // console.log(sprintQueryParams.value)
+    // 删除不需要的filter字段
+    for (const valueKey in sprintQueryParams.value) {
+      if (valueKey in filterForm.value && !(valueKey in values)) {
+        delete sprintQueryParams.value[valueKey]
+      }
+    }
+    // console.log(sprintQueryParams.value)
+    getSprintListData()
+  } else {
+    message.error('请至少填写一项，再进行筛选！')
+  }
+  // console.log('filterForm.value', filterForm.value)
+}
+const resetFilterForm = () => {
+  filterFormRef.value.resetFields()
+  for (const valueKey in filterForm.value) {
+    if (valueKey in sprintQueryParams.value) {
+      delete sprintQueryParams.value[valueKey]
+    }
+  }
+  getSprintListData()
+}
+
 getAllUserList().then((res) => {
   allUserDataList.value = res.results
 })
@@ -176,7 +268,7 @@ const getSprintListData = () => {
     paginationData.value = {
       total: res.count,
       current: res.current_page,
-      pageSize: 10,
+      pageSize: res.page_size,
       pageSizeOptions: ['10', '20', '30', '40', '50'],
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
@@ -193,7 +285,7 @@ const onPageChange = (pagination, filters, sorter, currentDataSource) => {
     paginationData.value = {
       total: res.count,
       current: res.current_page,
-      pageSize: pagination.pageSize,
+      pageSize: res.page_size,
       pageSizeOptions: ['10', '20', '30', '40', '50'],
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
@@ -227,9 +319,6 @@ const deleteSprint = (scriptId) => {
 </script>
 
 <style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
 .sprint-list {
   margin-top: 20px;
 }
