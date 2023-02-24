@@ -28,9 +28,9 @@
             :options="ownerOptions"
           ></a-select>
         </a-form-item>
-        <a-form-item name="status" label="项目状态">
+        <a-form-item name="project_status" label="项目状态">
           <a-select
-            v-model:value="createUpdateForm.status"
+            v-model:value="createUpdateForm.project_status"
             placeholder="请选择项目状态"
             :options="statusOptions"
           ></a-select>
@@ -80,7 +80,7 @@ const ownerOptions = computed(() => {
 const createUpdateForm = ref({
   name: '',
   owner: undefined,
-  status: 0
+  project_status: 0
 })
 const createUpdateFormRef = ref()
 const labelCol = { span: 5 }
@@ -100,7 +100,7 @@ watch(
       getProjectDetail(props.projectId).then((res) => {
         createUpdateForm.value = {
           name: res.name,
-          status: res.status,
+          project_status: res.project_status,
           owner: res.owner
         }
       })

@@ -19,7 +19,7 @@
               <a-descriptions v-if="workItemInfo">
                 <a-descriptions-item label="ID">{{ workItemInfo.id }}</a-descriptions-item>
                 <a-descriptions-item label="类型">
-                  <a-tag color="processing">{{ workItemTypeOptions[workItemInfo.type] }}</a-tag>
+                  <a-tag color="processing">{{ workItemTypeOptions[workItemInfo.work_item_type] }}</a-tag>
                 </a-descriptions-item>
                 <a-descriptions-item label="创建人">{{ workItemInfo.creator }}</a-descriptions-item>
                 <a-descriptions-item label="最后修改人">{{ workItemInfo.modifier }}</a-descriptions-item>
@@ -68,7 +68,7 @@
                     </a-form-item>
                   </a-col>
                 </a-row>
-                <a-row :gutter="24" v-if="createUpdateForm.type === 2">
+                <a-row :gutter="24" v-if="createUpdateForm.work_item_type === 2">
                   <a-col :span="12">
                     <a-form-item name="bug_type" label="缺陷类型">
                       <a-select
@@ -92,15 +92,15 @@
                 </a-row>
                 <a-row :gutter="24">
                   <a-col :span="12">
-                    <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp&nbsp态">
+                    <a-form-item name="work_item_status" label="状&nbsp&nbsp&nbsp&nbsp&nbsp态">
                       <a-select
-                        v-model:value="createUpdateForm.status"
+                        v-model:value="createUpdateForm.work_item_status"
                         placeholder="请选择工作项状态"
                         :options="statusOptions"
                       ></a-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="12" v-if="createUpdateForm.type === 2">
+                  <a-col :span="12" v-if="createUpdateForm.work_item_type === 2">
                     <a-form-item name="process_result" label="处理结果">
                       <a-select
                         v-model:value="createUpdateForm.process_result"
@@ -109,8 +109,8 @@
                       ></a-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="12" v-if="createUpdateForm.type === 1">
-                    <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
+                  <a-col :span="12" v-if="createUpdateForm.work_item_type === 1">
+                    <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.work_item_type === 1">
                       <a-date-picker
                         placeholder="请选择截止日期"
                         v-model:value="createUpdateForm.deadline"
@@ -319,9 +319,9 @@ const contentActiveKey = ref('1')
 const createUpdateForm = ref({
   name: '',
   owner: null,
-  type: props.title === '修改需求' ? 0 : props.title === '修改任务' ? 1 : 2,
+  work_item_type: props.title === '修改需求' ? 0 : props.title === '修改任务' ? 1 : 2,
   priority: null,
-  status: 0,
+  work_item_status: 0,
   severity: null,
   bug_type: null,
   process_result: null,
@@ -339,7 +339,7 @@ const createUpdateRules = {
   ],
   owner: [{ required: true, trigger: 'change', message: '负责人不能为空!' }],
   priority: [{ required: true, trigger: 'change', message: '优先级不能为空!' }],
-  status: [{ required: true, trigger: 'change', message: '工作项状态不能为空!' }]
+  work_item_status: [{ required: true, trigger: 'change', message: '工作项状态不能为空!' }]
 }
 const userFileUploadUrl = `http://${location.host}${import.meta.env.VITE_BASE_URL}/pm/files/`
 const userFileUploadHeaders = { Authorization: `Bearer ${userSettingStore.getToken}` }
@@ -482,8 +482,8 @@ const onOk = () => {
         values.deadline = values.deadline.format('YYYY-MM-DD HH:mm')
       }
       values.sprint = createUpdateForm.value.sprint
-      values.type = createUpdateForm.value.type
-      values.status = createUpdateForm.value.status
+      values.work_item_type = createUpdateForm.value.work_item_type
+      values.work_item_status = createUpdateForm.value.work_item_status
       // console.log(values)
       updateWorkItem(props.workItemId, values).then(() => {
         emit('getLatestDataList')

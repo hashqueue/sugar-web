@@ -29,8 +29,10 @@
       </template>
       <template v-else-if="column.key === 'id'">#{{ record.id }}</template>
       <template v-else-if="column.key === 'owner'">{{ record.owner }} - {{ record.owner_name }}</template>
-      <template v-else-if="column.key === 'status'">
-        <a-tag color="geekblue">{{ status[record.status] }}</a-tag>
+      <template v-else-if="column.key === 'project_status'">
+        <a-tag v-if="record.project_status === 0">{{ status[record.project_status] }}</a-tag>
+        <a-tag color="geekblue" v-else-if="record.project_status === 1">{{ status[record.project_status] }}</a-tag>
+        <a-tag color="green" v-else>{{ status[record.project_status] }}</a-tag>
       </template>
     </template>
   </standard-table>
@@ -88,8 +90,8 @@ const columns = [
   },
   {
     title: '状态',
-    dataIndex: 'status',
-    key: 'status'
+    dataIndex: 'project_status',
+    key: 'project_status'
   },
   {
     title: '负责人',

@@ -76,7 +76,7 @@ const getSprintDetailData = (pSprintId) => {
       { title: '所属项目', value: res.project_name },
       { title: 'ID', value: res.id },
       { title: '负责人', value: `${res.owner} - ${res.owner_name}` },
-      { title: '状态', value: status[res.status] },
+      { title: '状态', value: status[res.sprint_status] },
       { title: '需求数量', value: res.feature_count },
       { title: '任务数量', value: res.task_count },
       { title: '缺陷数量', value: res.bug_count },

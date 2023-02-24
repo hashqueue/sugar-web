@@ -12,7 +12,16 @@
     <a-col :span="4">
       <a-row type="flex" justify="end">
         <a-col>
-          <component class="github-logo" :is="'github-outlined'" @click="goToGithub" />
+          <a-tooltip>
+            <template #title>API文档</template>
+            <component class="github-logo" :is="'api-outlined'" @click="goToApiDocs" />
+          </a-tooltip>
+        </a-col>
+        <a-col>
+          <a-tooltip>
+            <template #title>Github</template>
+            <component class="github-logo" :is="'github-outlined'" @click="goToGithub" />
+          </a-tooltip>
         </a-col>
         <a-col>
           <screenfull-view />
@@ -65,6 +74,10 @@ const logOut = () => {
 }
 const showUserInfo = () => {
   router.push('/userProfile')
+}
+const goToApiDocs = () => {
+  window.open(`http://${location.host}/api/v1/swagger/`)
+  window.open(`http://${location.host}/api/v1/redoc/`)
 }
 const goToGithub = () => {
   window.open('https://github.com/hashqueue/sugar')

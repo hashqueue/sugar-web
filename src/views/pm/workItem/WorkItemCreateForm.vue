@@ -49,7 +49,7 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.type === 1">
+        <a-form-item name="deadline" label="截止日期" v-if="createUpdateForm.work_item_type === 1">
           <a-date-picker
             placeholder="请选择截止日期"
             v-model:value="createUpdateForm.deadline"
@@ -57,7 +57,7 @@
             format="YYYY-MM-DD HH:mm"
           />
         </a-form-item>
-        <a-row :gutter="24" v-if="createUpdateForm.type === 2">
+        <a-row :gutter="24" v-if="createUpdateForm.work_item_type === 2">
           <a-col :span="12">
             <a-form-item name="bug_type" label="缺陷类型">
               <a-select
@@ -175,9 +175,9 @@ const followersOptions = computed(() => {
 const createUpdateForm = ref({
   name: '',
   owner: null,
-  type: props.title === '新增需求' ? 0 : props.title === '新增任务' ? 1 : 2,
+  work_item_type: props.title === '新增需求' ? 0 : props.title === '新增任务' ? 1 : 2,
   priority: null,
-  status: 0,
+  work_item_status: 0,
   severity: null,
   bug_type: null,
   process_result: null,
@@ -206,8 +206,8 @@ const onOk = () => {
         delete values.deadline
       }
       values.sprint = createUpdateForm.value.sprint
-      values.type = createUpdateForm.value.type
-      values.status = createUpdateForm.value.status
+      values.work_item_type = createUpdateForm.value.work_item_type
+      values.work_item_status = createUpdateForm.value.work_item_status
       createWorkItem(values).then((res) => {
         // 通知sprintDetail组件更新数据
         workItemSettingStore.setNeedUpdateWorkItemSummary(true)

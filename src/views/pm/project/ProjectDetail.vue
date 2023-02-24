@@ -5,7 +5,7 @@
       <a-descriptions-item label="负责人">{{ projectInfo.owner }} - {{ projectInfo.owner_name }}</a-descriptions-item>
       <a-descriptions-item label="状态">
         <a-tag color="green">
-          {{ status[projectInfo.status] }}
+          {{ status[projectInfo.project_status] }}
         </a-tag>
       </a-descriptions-item>
       <a-descriptions-item label="迭代数量">{{ projectInfo.sprint_count }}</a-descriptions-item>

@@ -23,9 +23,9 @@
               </a-form-item>
             </a-col>
             <a-col :span="6">
-              <a-form-item name="status" label="状态">
+              <a-form-item name="sprint_status" label="状态">
                 <a-select
-                  v-model:value="filterForm.status"
+                  v-model:value="filterForm.sprint_status"
                   placeholder="请选择状态"
                   :options="statusOptions"
                   :allow-clear="true"
@@ -65,10 +65,10 @@
         </template>
         <template v-else-if="column.key === 'id'">#{{ record.id }}</template>
         <template v-else-if="column.key === 'owner'">{{ record.owner }} - {{ record.owner_name }}</template>
-        <template v-else-if="column.key === 'status'">
-          <a-tag v-if="record.status === 0">{{ status[record.status] }}</a-tag>
-          <a-tag color="geekblue" v-else-if="record.status === 1">{{ status[record.status] }}</a-tag>
-          <a-tag color="green" v-else>{{ status[record.status] }}</a-tag>
+        <template v-else-if="column.key === 'sprint_status'">
+          <a-tag v-if="record.sprint_status === 0">{{ status[record.sprint_status] }}</a-tag>
+          <a-tag color="geekblue" v-else-if="record.sprint_status === 1">{{ status[record.sprint_status] }}</a-tag>
+          <a-tag color="green" v-else>{{ status[record.sprint_status] }}</a-tag>
         </template>
       </template>
     </standard-table>
@@ -138,8 +138,8 @@ const columns = [
   },
   {
     title: '状态',
-    dataIndex: 'status',
-    key: 'status',
+    dataIndex: 'sprint_status',
+    key: 'sprint_status',
     width: 100
   },
   {
@@ -215,7 +215,7 @@ const filterForm = ref({
   name: '',
   owner: '',
   creator: '',
-  status: null
+  sprint_status: null
 })
 
 const handleFilterFinish = (values) => {

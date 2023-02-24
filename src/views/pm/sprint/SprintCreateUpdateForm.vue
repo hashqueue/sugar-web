@@ -31,9 +31,9 @@
             :options="ownerOptions"
           ></a-select>
         </a-form-item>
-        <a-form-item name="status" label="迭代状态">
+        <a-form-item name="sprint_status" label="迭代状态">
           <a-select
-            v-model:value="createUpdateForm.status"
+            v-model:value="createUpdateForm.sprint_status"
             placeholder="请选择迭代状态"
             :options="statusOptions"
           ></a-select>
@@ -103,7 +103,7 @@ const createUpdateForm = ref({
   owner: undefined,
   start_time: [],
   finish_time: '',
-  status: 0,
+  sprint_status: 0,
   project: props.projectId
 })
 const createUpdateFormRef = ref()
@@ -126,7 +126,7 @@ watch(
           createUpdateForm.value = {
             name: res.name,
             owner: res.owner,
-            status: res.status,
+            sprint_status: res.sprint_status,
             project: res.project,
             start_time: [dayjs(res.start_time), dayjs(res.finish_time)],
             finish_time: ''
@@ -135,7 +135,7 @@ watch(
           createUpdateForm.value = {
             name: res.name,
             owner: res.owner,
-            status: res.status,
+            sprint_status: res.sprint_status,
             project: res.project,
             start_time: [],
             finish_time: ''

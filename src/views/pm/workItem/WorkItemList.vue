@@ -66,9 +66,9 @@
         </a-row>
         <a-row>
           <a-col :span="6">
-            <a-form-item name="status" label="状&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp态">
+            <a-form-item name="work_item_status" label="状&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp态">
               <a-select
-                v-model:value="filterForm.status"
+                v-model:value="filterForm.work_item_status"
                 placeholder="请选择状态"
                 :options="statusOptions"
                 :allow-clear="true"
@@ -113,8 +113,8 @@
       </template>
       <template v-else-if="column.key === 'id'">#{{ record.id }}</template>
       <template v-else-if="column.key === 'owner'">{{ record.owner }} - {{ record.owner_name }}</template>
-      <template v-else-if="column.key === 'status'">
-        <a-tag color="geekblue">{{ status[record.status] }}</a-tag>
+      <template v-else-if="column.key === 'work_item_status'">
+        <a-tag color="geekblue">{{ status[record.work_item_status] }}</a-tag>
       </template>
       <template v-else-if="column.key === 'priority'">
         <template v-if="record.priority === 0">
@@ -203,7 +203,7 @@ const priority = { 0: '最低', 1: '较低', 2: '普通', 3: '较高', 4: '最�
 const createFormVisible = ref(false)
 const updateFormVisible = ref(false)
 const title = ref(`新增${workItemTypes[props.workItemType]}`)
-const workItemQueryParams = ref({ sprint_id: props.sprintId, type: props.workItemType })
+const workItemQueryParams = ref({ sprint_id: props.sprintId, work_item_type: props.workItemType })
 const tableLoading = ref(false)
 const paginationData = ref({})
 const columns = [
@@ -222,8 +222,8 @@ const columns = [
   },
   {
     title: '状态',
-    dataIndex: 'status',
-    key: 'status',
+    dataIndex: 'work_item_status',
+    key: 'work_item_status',
     width: 100
   },
   {
@@ -276,7 +276,7 @@ const filterForm = ref({
   owner: '',
   desc: '',
   creator: '',
-  status: null,
+  work_item_status: null,
   priority: null,
   bug_type: null,
   process_result: null,
