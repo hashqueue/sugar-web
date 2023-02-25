@@ -173,7 +173,7 @@ watch(
             is_visible: true,
             parent: res.id
           }
-        } else if (props.title === '修改权限') {
+        } else if (props.title === '修改权限' || props.title === '复制权限') {
           if (res.parent !== null) {
             if (!isSelectOptionsIncludeItemData(parentOptions.value, res.parent.id, 'value')) {
               parentOptions.value.push({

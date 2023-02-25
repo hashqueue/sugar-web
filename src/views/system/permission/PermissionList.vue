@@ -37,6 +37,8 @@
           <a-divider type="vertical" />
           <a @click="updatePermission(record)" v-permission="'修改权限'">修改</a>
           <a-divider type="vertical" />
+          <a @click="copyPermission(record)" v-permission="'新增权限'">复制</a>
+          <a-divider type="vertical" />
           <a-popconfirm
             title="确定删除该权限吗？"
             ok-text="确定"
@@ -134,7 +136,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 220,
+    width: 260,
     fixed: 'right'
   }
 ]
@@ -155,6 +157,11 @@ const createSubPermission = (record) => {
 const updatePermission = (record) => {
   permissionId.value = record.id
   title.value = '修改权限'
+  visible.value = true
+}
+const copyPermission = (record) => {
+  permissionId.value = record.id
+  title.value = '复制权限'
   visible.value = true
 }
 const deletePermission = (permissionId) => {
