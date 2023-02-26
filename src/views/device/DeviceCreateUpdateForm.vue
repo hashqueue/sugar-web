@@ -83,15 +83,15 @@ const wrapperCol = { span: 20 }
 const createUpdateRules = {
   username: [
     { required: true, trigger: 'change', message: '设备名不能为空!' },
-    { max: 64, trigger: 'change', message: '设备名不能多于64位!' }
+    { max: 255, trigger: 'change', message: '设备名不能多于255位!' }
   ],
   password: [
     { required: true, trigger: 'change', message: '设备名不能为空!' },
-    { max: 64, trigger: 'change', message: '设备名不能多于64位!' }
+    { max: 255, trigger: 'change', message: '设备名不能多于255位!' }
   ],
   host: [
     { required: true, trigger: 'change', message: '设备名不能为空!' },
-    { max: 64, trigger: 'change', message: '设备名不能多于64位!' }
+    { max: 255, trigger: 'change', message: '设备名不能多于255位!' }
   ],
   port: [{ required: true, trigger: 'change', message: '设备端口号不能为空!' }]
 }

@@ -76,8 +76,13 @@ const showUserInfo = () => {
   router.push('/userProfile')
 }
 const goToApiDocs = () => {
-  window.open(`http://${location.host}/api/v1/swagger/`)
-  window.open(`http://${location.host}/api/v1/redoc/`)
+  if (import.meta.env.MODE === 'development') {
+    window.open(`http://127.0.0.1:8000/api/v1/swagger/`)
+    window.open(`http://127.0.0.1:8000/api/v1/redoc/`)
+  } else {
+    window.open(`http://${location.host}/api/v1/swagger/`)
+    window.open(`http://${location.host}/api/v1/redoc/`)
+  }
 }
 const goToGithub = () => {
   window.open('https://github.com/hashqueue/sugar')

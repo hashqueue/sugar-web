@@ -41,3 +41,9 @@ export const updateDeviceWithPatch = (deviceId, data) => {
     data
   })
 }
+export const getDeviceAliveLogList = (deviceId) => {
+  return request({
+    url: `/devices/${deviceId}/device-alive-logs/`,
+    method: 'GET'
+  })
+}

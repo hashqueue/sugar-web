@@ -66,6 +66,8 @@
             >
               <a v-permission="'删除设备'">删除</a>
             </a-popconfirm>
+            <a-divider type="vertical" />
+            <a @click="viewDeviceAliveLogs(record)" v-permission="'修改设备'">设备探活日志</a>
           </span>
         </template>
         <template v-else-if="column.key === 'id'">#{{ record.id }}</template>
@@ -78,6 +80,38 @@
         </template>
       </template>
     </standard-table>
+    <a-drawer v-model:visible="deviceAliveLogVisible" width="45%">
+      <h1>{{ deviceAliveLogsTitle }}</h1>
+      <p style="margin-bottom: 30px">只展示最近1天(Redis存储)的设备探活日志</p>
+      <a-empty v-if="deviceAliveLogs.length === 0" />
+      <a-timeline v-else>
+        <template v-for="(item, index) in deviceAliveLogs" :key="index">
+          <a-timeline-item color="red">
+            <p>{{ item.complete_time }}</p>
+            <p>
+              任务ID：{{ item.task_id }} -
+              <a-tag :color="item.task_status === 'success' ? 'success' : 'error'">{{ item.task_status }}</a-tag>
+            </p>
+            <p>
+              任务参数：host - <a-tag color="blue">{{ item.kwargs.host }}</a-tag
+              >port - <a-tag color="blue">{{ item.kwargs.port }}</a-tag
+              >username - <a-tag color="blue">{{ item.kwargs.username }}</a-tag>
+            </p>
+            <template v-if="item.task_status === 'success'">
+              <p>
+                <span>任务结果：</span
+                ><span :style="{ color: item.task_result.result ? '#52c41a' : 'red' }">{{ item.task_result.msg }}</span>
+              </p>
+            </template>
+            <template v-else>
+              <p>
+                <span>异常信息：</span><span style="color: red">{{ item.error }}</span>
+              </p>
+            </template>
+          </a-timeline-item>
+        </template>
+      </a-timeline>
+    </a-drawer>
     <device-create-update-form
       :visible="visible"
       :title="title"
@@ -91,12 +125,14 @@
 <script setup>
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { deleteDeviceDetail, getDeviceList } from '@/apis/device/device'
+import { deleteDeviceDetail, getDeviceList, getDeviceAliveLogList } from '@/apis/device/device'
 import DeviceCreateUpdateForm from './DeviceCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 
 const deviceId = ref(null)
 const dataList = ref([])
+const deviceAliveLogs = ref([])
+const deviceAliveLogsTitle = ref('')
 const status = { 0: '离线', 1: '在线' }
 const deviceTypes = { 0: '阿里云ECS', 1: '腾讯云ECS', 2: 'Raspberry Pi(树莓派)' }
 const statusOptions = [
@@ -109,6 +145,7 @@ const deviceTypeOptions = [
   { value: 2, label: 'Raspberry Pi(树莓派)' }
 ]
 const visible = ref(false)
+const deviceAliveLogVisible = ref(false)
 const title = ref('新增设备')
 const deviceQueryParams = ref({})
 const tableLoading = ref(false)
@@ -122,6 +159,12 @@ const columns = [
     fixed: 'left'
   },
   {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+    width: 60
+  },
+  {
     title: '端口',
     dataIndex: 'port',
     key: 'port',
@@ -131,19 +174,19 @@ const columns = [
     title: '用户名',
     dataIndex: 'username',
     key: 'username',
-    width: 100
+    width: 130
   },
   {
     title: '设备类型',
     dataIndex: 'device_type',
     key: 'device_type',
-    width: 150
+    width: 160
   },
   {
     title: '设备状态',
     dataIndex: 'device_status',
     key: 'device_status',
-    width: 100
+    width: 90
   },
   {
     title: '创建人',
@@ -172,7 +215,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 160,
+    width: 230,
     fixed: 'right'
   }
 ]
@@ -268,6 +311,13 @@ const updateDevice = (record) => {
   deviceId.value = record.id
   title.value = '修改设备'
   visible.value = true
+}
+const viewDeviceAliveLogs = (recode) => {
+  deviceAliveLogsTitle.value = recode.host
+  deviceAliveLogVisible.value = true
+  getDeviceAliveLogList(recode.id).then((res) => {
+    deviceAliveLogs.value = res.results
+  })
 }
 const deleteDevice = (scriptId) => {
   deleteDeviceDetail(scriptId).then(() => {
