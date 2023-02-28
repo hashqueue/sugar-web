@@ -93,7 +93,7 @@ import { message } from 'ant-design-vue'
 import { deleteSprintDetail, getSprintList } from '@/apis/pm/sprint'
 import SprintCreateUpdateForm from './SprintCreateUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
-import { getAllUserList } from '@/apis/system/user'
+import { getProjectMembers } from '@/apis/pm/project'
 import { projectStore } from '@/stores/project'
 
 const props = defineProps({
@@ -258,7 +258,7 @@ const resetFilterForm = () => {
   getSprintListData()
 }
 
-getAllUserList().then((res) => {
+getProjectMembers(props.projectId).then((res) => {
   allUserDataList.value = res.results
 })
 

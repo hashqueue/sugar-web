@@ -164,7 +164,7 @@ import { getSprintDetail } from '@/apis/pm/sprint'
 import WorkItemCreateForm from './WorkItemCreateForm.vue'
 import WorkItemUpdateForm from './WorkItemUpdateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
-import { getAllUserList } from '@/apis/system/user'
+import { getProjectMembers } from '@/apis/pm/project'
 import { workItemStore } from '@/stores/workItem'
 import { bugTypeOptions, processResultOptions, statusOptions, priorityOptions, severityOptions } from '@/utils/common'
 
@@ -325,9 +325,9 @@ const resetFilterForm = () => {
 
 getSprintDetail(props.sprintId).then((res) => {
   sprintInfo.value = res
-})
-getAllUserList().then((res) => {
-  allUserDataList.value = res.results
+  getProjectMembers(res.project_id).then((res) => {
+    allUserDataList.value = res.results
+  })
 })
 
 const getWorkItemListData = () => {

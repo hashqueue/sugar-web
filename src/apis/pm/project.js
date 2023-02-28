@@ -14,6 +14,13 @@ export const getProjectDetail = (projectId) => {
   })
 }
 
+export const getProjectMembers = (projectId) => {
+  return request({
+    url: `/pm/projects/${projectId}/members/`,
+    method: 'GET'
+  })
+}
+
 export const updateProject = (projectId, data) => {
   return request({
     url: `/pm/projects/${projectId}/`,
