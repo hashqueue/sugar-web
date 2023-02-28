@@ -82,7 +82,9 @@
     </standard-table>
     <a-drawer v-model:visible="deviceAliveLogVisible" width="45%">
       <h1>{{ deviceAliveLogsTitle }}</h1>
-      <p style="margin-bottom: 30px">只展示最近1天(Redis存储)的设备探活日志</p>
+      <p style="margin-bottom: 30px">
+        只展示最近1小时内<span style="color: #52c41a">（Redis存储）</span>的设备探活日志
+      </p>
       <a-empty v-if="deviceAliveLogs.length === 0" />
       <a-timeline v-else>
         <template v-for="(item, index) in deviceAliveLogs" :key="index">

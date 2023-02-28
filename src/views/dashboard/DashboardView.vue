@@ -1,4 +1,41 @@
 <template>
+  <a-row justify="space-between">
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="项目数量" :value="userStatisticsData.project_count" />
+      </a-card>
+    </a-col>
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="迭代数量" :value="userStatisticsData.sprint_count" />
+      </a-card>
+    </a-col>
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="需求数量" :value="userStatisticsData.feature_count" />
+      </a-card>
+    </a-col>
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="任务数量" :value="userStatisticsData.task_count" />
+      </a-card>
+    </a-col>
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="缺陷数量" :value="userStatisticsData.bug_count" />
+      </a-card>
+    </a-col>
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="角色数量" :value="userStatisticsData.role_count" />
+      </a-card>
+    </a-col>
+    <a-col :span="3">
+      <a-card class="statistic-card">
+        <a-statistic title="权限数量" :value="userStatisticsData.permission_count" />
+      </a-card>
+    </a-col>
+  </a-row>
   <a-row type="flex" justify="space-between">
     <a-col :span="12">
       <a-card class="card">
@@ -46,6 +83,7 @@ import { LineChart, PieChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 import MonacoEditor from '@/components/editor/MonacoEditor.vue'
+import { getUserStatistics } from '@/apis/system/user'
 
 use([
   CanvasRenderer,
@@ -59,6 +97,18 @@ use([
   UniversalTransition
 ])
 let dynamicInterval
+const userStatisticsData = ref({
+  role_count: null,
+  permission_count: null,
+  project_count: null,
+  sprint_count: null,
+  task_count: null,
+  bug_count: null,
+  feature_count: null
+})
+getUserStatistics(1).then((res) => {
+  userStatisticsData.value = res
+})
 const pieOption = {
   title: {
     text: 'TIOBE编程语言排行榜',
@@ -242,6 +292,9 @@ onUnmounted(() => {
 .card {
   height: 560px;
   width: 99%;
+  margin-bottom: 10px;
+}
+.statistic-card {
   margin-bottom: 10px;
 }
 .chart {

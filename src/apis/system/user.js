@@ -66,6 +66,14 @@ export const deleteUserDetail = (userId) => {
     method: 'DELETE'
   })
 }
+
+export const getUserStatistics = () => {
+  return request({
+    url: `/system/users/statistics/`,
+    method: 'GET'
+  })
+}
+
 export const updateUserWithPatch = (userId, data) => {
   return request({
     url: `/system/users/${userId}/`,

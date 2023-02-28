@@ -18,7 +18,7 @@ const redirectToLogin = () => {
   antMessage.error(TOKEN_INVALID, 6)
   router.push('/login')
 }
-const urlWhiteList = ['/system/user/login/', '/system/user/register/']
+const urlWhiteList = ['/system/users/login/', '/system/users/register/']
 
 /**
  * 请求拦截器

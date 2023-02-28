@@ -22,6 +22,7 @@
   <a-row type="flex" justify="space-between">
     <a-col :span="4">
       <a-card :title="sprintName" class="sprint-desc">
+        <template #extra><a-button type="primary" @click="returnToSprintList">返回迭代列表</a-button></template>
         <div class="card-content" v-for="(item, index) in sprintInfoData" :key="index">
           <a-tag color="geekblue">{{ item.title }}:</a-tag>{{ item.value }}
         </div>
@@ -50,6 +51,7 @@ const route = useRoute()
 const router = useRouter()
 const workItemSettingStore = workItemStore()
 const sprintId = route.params.sprintId
+const projectId = ref(null)
 const sprintName = ref('')
 const tabsActiveKey = ref('')
 
@@ -72,6 +74,7 @@ const getSprintDetailData = (pSprintId) => {
   getSprintDetail(pSprintId).then((res) => {
     // sprintInfo.value = res
     sprintName.value = res.name
+    projectId.value = res.project_id
     sprintInfoData.value = [
       { title: '所属项目', value: res.project_name },
       { title: 'ID', value: res.id },
@@ -98,6 +101,9 @@ const onTabsChange = (activeKey) => {
   } else if (activeKey === '3') {
     router.push({ name: `/pm/sprints/:sprintId/bugs/list`, params: { sprintId: sprintId } })
   }
+}
+const returnToSprintList = () => {
+  router.push({ name: `/pm/projects/:projectId`, params: { projectId: projectId.value } })
 }
 </script>
 
