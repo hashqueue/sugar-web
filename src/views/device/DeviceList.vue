@@ -67,7 +67,14 @@
               <a v-permission="'删除设备'">删除</a>
             </a-popconfirm>
             <a-divider type="vertical" />
-            <a @click="viewDeviceAliveLogs(record)" v-permission="'修改设备'">设备探活日志</a>
+            <a-popover>
+              <template #content>
+                <p><a @click="viewDeviceAliveLogs(record)" v-permission="'修改设备'">设备探活日志</a></p>
+                <p><a @click="deployAgent(record)" v-permission="'修改设备'">部署agent</a></p>
+                <p><a @click="collectPerfData(record)" v-permission="'修改设备'">采集性能数据</a></p>
+              </template>
+              <a>管理</a>
+            </a-popover>
           </span>
         </template>
         <template v-else-if="column.key === 'id'">#{{ record.id }}</template>
@@ -121,6 +128,12 @@
       @close-modal="closeModal"
       @get-latest-data-list="getDeviceListData"
     />
+    <device-perf-task-create-form
+      :visible="perfDataCollectVisible"
+      :title="perfDataCollectTitle"
+      :device-id="deviceId"
+      @close-modal="closeCollectPerfDataModal"
+    />
   </a-card>
 </template>
 
@@ -129,6 +142,7 @@ import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { deleteDeviceDetail, getDeviceList, getDeviceAliveLogList } from '@/apis/device/device'
 import DeviceCreateUpdateForm from './DeviceCreateUpdateForm.vue'
+import DevicePerfTaskCreateForm from './DevicePerfTaskCreateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 
 const deviceId = ref(null)
@@ -147,8 +161,10 @@ const deviceTypeOptions = [
   { value: 2, label: 'Raspberry Pi(树莓派)' }
 ]
 const visible = ref(false)
+const perfDataCollectVisible = ref(false)
 const deviceAliveLogVisible = ref(false)
 const title = ref('新增设备')
+const perfDataCollectTitle = ref('采集设备的性能数据')
 const deviceQueryParams = ref({})
 const tableLoading = ref(false)
 const paginationData = ref({})
@@ -167,16 +183,16 @@ const columns = [
     width: 60
   },
   {
-    title: '端口',
-    dataIndex: 'port',
-    key: 'port',
-    width: 70
-  },
-  {
     title: '用户名',
     dataIndex: 'username',
     key: 'username',
     width: 130
+  },
+  {
+    title: '端口',
+    dataIndex: 'port',
+    key: 'port',
+    width: 80
   },
   {
     title: '设备类型',
@@ -188,7 +204,7 @@ const columns = [
     title: '设备状态',
     dataIndex: 'device_status',
     key: 'device_status',
-    width: 90
+    width: 100
   },
   {
     title: '创建人',
@@ -217,7 +233,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 230,
+    width: 200,
     fixed: 'right'
   }
 ]
@@ -309,6 +325,9 @@ const closeModal = () => {
   title.value = '新增设备'
   visible.value = false
 }
+const closeCollectPerfDataModal = () => {
+  perfDataCollectVisible.value = false
+}
 const updateDevice = (record) => {
   deviceId.value = record.id
   title.value = '修改设备'
@@ -325,6 +344,14 @@ const deleteDevice = (scriptId) => {
   deleteDeviceDetail(scriptId).then(() => {
     getDeviceListData()
   })
+}
+const deployAgent = (record) => {
+  console.log('deployAgent')
+}
+const collectPerfData = (record) => {
+  deviceId.value = record.id
+  perfDataCollectTitle.value = `采集设备${record.host}的性能数据`
+  perfDataCollectVisible.value = true
 }
 </script>
 

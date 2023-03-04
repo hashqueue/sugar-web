@@ -82,18 +82,18 @@ const labelCol = { span: 4 }
 const wrapperCol = { span: 20 }
 const createUpdateRules = {
   username: [
-    { required: true, trigger: 'change', message: '设备名不能为空!' },
-    { max: 255, trigger: 'change', message: '设备名不能多于255位!' }
+    { required: true, trigger: 'change', message: '用户名不能为空!' },
+    { max: 255, trigger: 'change', message: '用户名不能多于255位!' }
   ],
   password: [
-    { required: true, trigger: 'change', message: '设备名不能为空!' },
-    { max: 255, trigger: 'change', message: '设备名不能多于255位!' }
+    { required: true, trigger: 'change', message: '密码不能为空!' },
+    { max: 255, trigger: 'change', message: '密码不能多于255位!' }
   ],
   host: [
-    { required: true, trigger: 'change', message: '设备名不能为空!' },
-    { max: 255, trigger: 'change', message: '设备名不能多于255位!' }
+    { required: true, trigger: 'change', message: '域名或IP不能为空!' },
+    { max: 255, trigger: 'change', message: '域名或IP不能多于255位!' }
   ],
-  port: [{ required: true, trigger: 'change', message: '设备端口号不能为空!' }]
+  port: [{ required: true, trigger: 'change', message: '端口号不能为空!' }]
 }
 
 watch(

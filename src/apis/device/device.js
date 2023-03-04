@@ -47,3 +47,11 @@ export const getDeviceAliveLogList = (deviceId) => {
     method: 'GET'
   })
 }
+
+export const collectDevicePerfData = (deviceId, data) => {
+  return request({
+    url: `/devices/${deviceId}/collect-device-perf-data/`,
+    method: 'POST',
+    data
+  })
+}
