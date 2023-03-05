@@ -63,7 +63,7 @@ const createUpdateForm = ref({
 })
 const createUpdateFormRef = ref()
 const labelCol = { span: 5 }
-const wrapperCol = { span: 24 }
+const wrapperCol = { span: 15 }
 const createUpdateRules = {
   intervals: [{ required: true, trigger: 'change', message: '采集次数不能为空!' }],
   count: [{ required: true, trigger: 'change', message: '间隔时间不能为空!' }]

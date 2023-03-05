@@ -140,7 +140,7 @@
 <script setup>
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { deleteDeviceDetail, getDeviceList, getDeviceAliveLogList } from '@/apis/device/device'
+import { deleteDeviceDetail, getDeviceList, getDeviceAliveLogList, deployAgentToDevice } from '@/apis/device/device'
 import DeviceCreateUpdateForm from './DeviceCreateUpdateForm.vue'
 import DevicePerfTaskCreateForm from './DevicePerfTaskCreateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
@@ -346,7 +346,7 @@ const deleteDevice = (scriptId) => {
   })
 }
 const deployAgent = (record) => {
-  console.log('deployAgent')
+  deployAgentToDevice(record.id)
 }
 const collectPerfData = (record) => {
   deviceId.value = record.id

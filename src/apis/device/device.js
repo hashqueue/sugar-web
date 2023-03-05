@@ -50,8 +50,15 @@ export const getDeviceAliveLogList = (deviceId) => {
 
 export const collectDevicePerfData = (deviceId, data) => {
   return request({
-    url: `/devices/${deviceId}/collect-device-perf-data/`,
+    url: `/devices/${deviceId}/collect-perf-data/`,
     method: 'POST',
     data
+  })
+}
+
+export const deployAgentToDevice = (deviceId) => {
+  return request({
+    url: `/devices/${deviceId}/deploy-agent/`,
+    method: 'GET'
   })
 }

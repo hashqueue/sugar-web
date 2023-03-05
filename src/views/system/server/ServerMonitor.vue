@@ -167,6 +167,7 @@ onMounted(() => {
     }, 2000)
   }
   webSocket.onerror = (event) => {
+    console.log('WebSocket error: ', event)
     message.error('与server建立ws连接时出错.', 5)
   }
   webSocket.onmessage = (event) => {
