@@ -72,6 +72,7 @@
                 <p><a @click="viewDeviceAliveLogs(record)" v-permission="'修改设备'">设备探活日志</a></p>
                 <p><a @click="deployAgent(record)" v-permission="'修改设备'">部署agent</a></p>
                 <p><a @click="collectPerfData(record)" v-permission="'修改设备'">采集性能数据</a></p>
+                <p><a @click="getCollectPerfDataHistory(record)" v-permission="'修改设备'">采集历史</a></p>
               </template>
               <a>管理</a>
             </a-popover>
@@ -135,15 +136,31 @@
       @close-modal="closeCollectPerfDataModal"
     />
   </a-card>
+  <a-drawer
+    v-model:visible="deployAgentDrawerVisible"
+    :title="deployAgentDrawerTitle"
+    width="70%"
+    :mask-closable="false"
+    :closable="false"
+  >
+    <h1 :style="{ color: deployAgentTipsColor }">{{ deployAgentTips }}</h1>
+    <monaco-editor
+      style="margin-top: 16px"
+      v-model:content-value="deployAgentLog"
+      :editor-options="deployAgentLogEditorOptions"
+    ></monaco-editor>
+    <a-button @click="closeDeployAgentDrawer" style="margin-top: 16px" type="primary">关闭</a-button>
+  </a-drawer>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { deleteDeviceDetail, getDeviceList, getDeviceAliveLogList, deployAgentToDevice } from '@/apis/device/device'
+import { deleteDeviceDetail, deployAgentToDevice, getDeviceAliveLogList, getDeviceList } from '@/apis/device/device'
 import DeviceCreateUpdateForm from './DeviceCreateUpdateForm.vue'
 import DevicePerfTaskCreateForm from './DevicePerfTaskCreateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
+import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 
 const deviceId = ref(null)
 const dataList = ref([])
@@ -163,6 +180,29 @@ const deviceTypeOptions = [
 const visible = ref(false)
 const perfDataCollectVisible = ref(false)
 const deviceAliveLogVisible = ref(false)
+
+const deployAgentDrawerVisible = ref(false)
+const wsPublishInterval = ref(null)
+const webSocket = ref(null)
+const deployAgentDrawerTitle = ref('')
+const deployAgentLog = ref('')
+const deployAgentTips = ref('开始部署agent...')
+const deployAgentTipsColor = ref('#1890ff')
+const deployAgentLogEditorOptions = ref({
+  formatOnPaste: true,
+  formatOnType: true,
+  automaticLayout: true, // 自动撑开布局
+  language: 'shell', // 语言
+  readOnly: true, // 只读
+  tabSize: 2, // tab 缩进长度
+  fontSize: 16, // 字体大小
+  theme: 'vs-dark', // 官方自带三种主题vs, hc-black, or vs-dark
+  divWidth: '100%',
+  divHeight: '650px',
+  minimap: {
+    enabled: false // 不显示代码缩略图
+  }
+})
 const title = ref('新增设备')
 const perfDataCollectTitle = ref('采集设备的性能数据')
 const deviceQueryParams = ref({})
@@ -346,12 +386,61 @@ const deleteDevice = (scriptId) => {
   })
 }
 const deployAgent = (record) => {
-  deployAgentToDevice(record.id)
+  deployAgentToDevice(record.id).then((res) => {
+    const taskUUID = res.task_uuid
+    deployAgentDrawerVisible.value = true
+    deployAgentDrawerTitle.value = `设备 ${record.host} 部署agent实时日志`
+    webSocket.value = new WebSocket(
+      `ws://${location.host}${import.meta.env.VITE_WS_BASE_URL}/server/get-performance-data/`
+    )
+    webSocket.value.onopen = (event) => {
+      message.success('与server建立ws连接成功，拉取数据中...')
+      wsPublishInterval.value = setInterval(() => {
+        webSocket.value.send(JSON.stringify({ action: 'get-deploy-agent-log', task_uuid: taskUUID }))
+      }, 1000)
+    }
+    webSocket.value.onerror = (event) => {
+      console.log('WebSocket error: ', event)
+      message.error('与server建立ws连接时出错.', 5)
+    }
+    webSocket.value.onmessage = (event) => {
+      // 当接收到ws server推送过来的数据时触发
+      const respData = JSON.parse(event.data)
+      deployAgentLog.value = respData.data.log
+      if (respData.data.result && respData.data.result.data.result) {
+        message.success('agent部署成功.', 3)
+        deployAgentTips.value = 'agent部署成功.'
+        deployAgentTipsColor.value = '#52c41a'
+        webSocket.value.close()
+        clearInterval(wsPublishInterval.value)
+      } else if (respData.data.result && !respData.data.result.data.result) {
+        message.error('agent部署失败.', 3)
+        deployAgentTips.value = 'agent部署失败.'
+        deployAgentTipsColor.value = 'red'
+        webSocket.value.close()
+        clearInterval(wsPublishInterval.value)
+      }
+    }
+    webSocket.value.onclose = (event) => {
+      message.info('已与server断开ws连接.', 3)
+    }
+  })
 }
 const collectPerfData = (record) => {
   deviceId.value = record.id
   perfDataCollectTitle.value = `采集设备${record.host}的性能数据`
   perfDataCollectVisible.value = true
+}
+const getCollectPerfDataHistory = (record) => {}
+const closeDeployAgentDrawer = () => {
+  deployAgentDrawerVisible.value = false
+  // 关闭当前连接
+  webSocket.value.close()
+  // 取消定时器
+  clearInterval(wsPublishInterval.value)
+  deployAgentTips.value = '开始部署agent...'
+  deployAgentTipsColor.value = '#1890ff'
+  deployAgentLog.value = ''
 }
 </script>
 
