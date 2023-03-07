@@ -1,5 +1,5 @@
 <template>
-  <a-button class="add-btn" type="primary" @click="createRootPermission" v-permission="'新增权限'">新增根权限</a-button>
+  <a-button type="primary" @click="createRootPermission" v-permission="'新增权限'">新增根权限</a-button>
   <standard-table
     :data-source="dataList"
     :columns="columns"
@@ -171,8 +171,4 @@ const deletePermission = (permissionId) => {
 }
 </script>
 
-<style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
-</style>
+<style scoped></style>

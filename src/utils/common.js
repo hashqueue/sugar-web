@@ -195,3 +195,15 @@ export const severityOptions = [
   { value: 4, label: '严重' },
   { value: 5, label: '致命' }
 ]
+
+export const taskResultsStatusOptions = [
+  { value: 0, label: 'PENDING' },
+  { value: 1, label: 'RECEIVED' },
+  { value: 2, label: 'STARTED' },
+  { value: 3, label: 'SUCCESS' },
+  { value: 4, label: 'FAILURE' },
+  { value: 5, label: 'REVOKED' },
+  { value: 6, label: 'RETRY' },
+  { value: 7, label: 'IGNORED' },
+  { value: 8, label: 'Queued' }
+]

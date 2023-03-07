@@ -1,8 +1,8 @@
 <template>
-  <a-button class="add-btn" type="primary" @click="createRole" v-permission="'新增角色'">新增角色</a-button>
+  <a-button type="primary" @click="createRole" v-permission="'新增角色'">新增角色</a-button>
   <standard-table
     :data-source="dataList"
-    :loadin="tableLoading"
+    :loading="tableLoading"
     :columns="columns"
     :row-key="'id'"
     @on-page-change="onPageChange"
@@ -192,9 +192,6 @@ const deleteRole = (roleId) => {
 </script>
 
 <style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
 .submit-btn {
   margin-top: 100px;
 }

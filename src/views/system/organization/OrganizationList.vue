@@ -1,7 +1,5 @@
 <template>
-  <a-button class="add-btn" type="primary" @click="createRootOrganization" v-permission="'新增部门'"
-    >新增根组织架构</a-button
-  >
+  <a-button type="primary" @click="createRootOrganization" v-permission="'新增部门'">新增根组织架构</a-button>
   <standard-table
     :data-source="dataList"
     :columns="columns"
@@ -111,8 +109,4 @@ const deleteOrganization = (organizationId) => {
 }
 </script>
 
-<style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
-</style>
+<style scoped></style>

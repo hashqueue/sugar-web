@@ -1,5 +1,5 @@
 <template>
-  <a-button class="add-btn" type="primary" @click="createUser" v-permission="'新增用户'">新增用户</a-button>
+  <a-button type="primary" @click="createUser" v-permission="'新增用户'">新增用户</a-button>
   <standard-table
     :data-source="dataList"
     :columns="columns"
@@ -135,8 +135,4 @@ const deleteUser = (userId) => {
 }
 </script>
 
-<style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
-</style>
+<style scoped></style>

@@ -155,6 +155,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { deleteDeviceDetail, deployAgentToDevice, getDeviceAliveLogList, getDeviceList } from '@/apis/device/device'
 import DeviceCreateUpdateForm from './DeviceCreateUpdateForm.vue'
@@ -162,8 +163,10 @@ import DevicePerfTaskCreateForm from './DevicePerfTaskCreateForm.vue'
 import StandardTable from '@/components/table/StandardTable.vue'
 import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 
+const router = useRouter()
 const deviceId = ref(null)
 const dataList = ref([])
+
 const deviceAliveLogs = ref([])
 const deviceAliveLogsTitle = ref('')
 const status = { 0: '离线', 1: '在线' }
@@ -273,7 +276,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 200,
+    width: 150,
     fixed: 'right'
   }
 ]
@@ -407,13 +410,13 @@ const deployAgent = (record) => {
       // 当接收到ws server推送过来的数据时触发
       const respData = JSON.parse(event.data)
       deployAgentLog.value = respData.data.log
-      if (respData.data.result && respData.data.result.data.result) {
+      if (respData.data.result && respData.data.result.status) {
         message.success('agent部署成功.', 3)
         deployAgentTips.value = 'agent部署成功.'
         deployAgentTipsColor.value = '#52c41a'
         webSocket.value.close()
         clearInterval(wsPublishInterval.value)
-      } else if (respData.data.result && !respData.data.result.data.result) {
+      } else if (respData.data.result && !respData.data.result.status) {
         message.error('agent部署失败.', 3)
         deployAgentTips.value = 'agent部署失败.'
         deployAgentTipsColor.value = 'red'
@@ -431,7 +434,9 @@ const collectPerfData = (record) => {
   perfDataCollectTitle.value = `采集设备${record.host}的性能数据`
   perfDataCollectVisible.value = true
 }
-const getCollectPerfDataHistory = (record) => {}
+const getCollectPerfDataHistory = (record) => {
+  router.push({ name: '/dm/devices/:deviceId/cps/list', params: { deviceId: record.id } })
+}
 const closeDeployAgentDrawer = () => {
   deployAgentDrawerVisible.value = false
   // 关闭当前连接
