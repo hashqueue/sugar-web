@@ -16,18 +16,13 @@
         :label-col="labelCol"
         :wrapper-col="wrapperCol"
       >
-        <a-form-item name="intervals" label="采集次数(次)">
+        <a-form-item name="count" label="采集次数(次)">
+          <a-input-number v-model:value="createUpdateForm.count" addon-before="一共采集" addon-after="次" :min="1" />
+        </a-form-item>
+        <a-form-item name="intervals" label="间隔时间(秒)">
           <a-input-number
             v-model:value="createUpdateForm.intervals"
-            addon-before="一共采集"
-            addon-after="次"
-            :min="5"
-          />
-        </a-form-item>
-        <a-form-item name="count" label="间隔时间(秒)">
-          <a-input-number
-            v-model:value="createUpdateForm.count"
-            :min="5"
+            :min="1"
             addon-before="每隔"
             addon-after="秒采集一次"
           />
@@ -65,8 +60,8 @@ const createUpdateFormRef = ref()
 const labelCol = { span: 5 }
 const wrapperCol = { span: 15 }
 const createUpdateRules = {
-  intervals: [{ required: true, trigger: 'change', message: '采集次数不能为空!' }],
-  count: [{ required: true, trigger: 'change', message: '间隔时间不能为空!' }]
+  intervals: [{ required: true, trigger: 'change', message: '间隔时间不能为空!' }],
+  count: [{ required: true, trigger: 'change', message: '采集次数不能为空!' }]
 }
 const onOk = () => {
   createUpdateFormRef.value

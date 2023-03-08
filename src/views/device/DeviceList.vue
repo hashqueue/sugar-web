@@ -435,7 +435,10 @@ const collectPerfData = (record) => {
   perfDataCollectVisible.value = true
 }
 const getCollectPerfDataHistory = (record) => {
-  router.push({ name: '/dm/devices/:deviceId/cps/list', params: { deviceId: record.id } })
+  router.push({
+    name: '/dm/cps/list',
+    query: { deviceId: record.id, deviceHost: record.host }
+  })
 }
 const closeDeployAgentDrawer = () => {
   deployAgentDrawerVisible.value = false
