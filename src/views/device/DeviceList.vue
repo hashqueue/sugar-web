@@ -69,9 +69,9 @@
             <a-divider type="vertical" />
             <a-popover>
               <template #content>
-                <p><a @click="viewDeviceAliveLogs(record)" v-permission="'修改设备'">设备探活日志</a></p>
-                <p><a @click="deployAgent(record)" v-permission="'修改设备'">部署agent</a></p>
-                <p><a @click="collectPerfData(record)" v-permission="'修改设备'">采集性能数据</a></p>
+                <p><a @click="viewDeviceAliveLogs(record)" v-permission="'查询设备探活日志'">设备探活日志</a></p>
+                <p><a @click="deployAgent(record)" v-permission="'部署agent'">部署agent</a></p>
+                <p><a @click="collectPerfData(record)" v-permission="'采集设备性能数据'">采集性能数据</a></p>
                 <p><a @click="getCollectPerfDataHistory(record)" v-permission="'修改设备'">采集历史</a></p>
               </template>
               <a>管理</a>

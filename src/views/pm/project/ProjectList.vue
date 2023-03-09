@@ -52,7 +52,7 @@
       :columns="allUserColumns"
       :pagination="{ hideOnSinglePage: true }"
     ></standard-table>
-    <a-button @click="submitAddMembers" type="primary" v-permission="'修改角色部分信息'">提交</a-button>
+    <a-button @click="submitAddMembers" type="primary" v-permission="'修改项目部分信息'">提交</a-button>
   </a-drawer>
 </template>
 

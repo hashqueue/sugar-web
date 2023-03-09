@@ -60,16 +60,14 @@
             <a-button
               @click="getPerfDataDetail(record)"
               type="link"
-              :disabled="!record.result.status"
-              v-permission="'修改设备'"
+              :disabled="!record.result || !record.result.status"
+              v-permission="'查询设备性能数据详情'"
               >数据详情</a-button
             >
           </span>
         </template>
         <template v-else-if="column.key === 'result'"
-          ><a-tag :color="record.result.status ? 'success' : 'error'">{{
-            record.result.status ? '成功' : '失败'
-          }}</a-tag></template
+          ><a-tag :color="taskResultsStatusColor(record)">{{ taskResultsStatusText(record) }}</a-tag></template
         >
         <template v-else-if="column.key === 'creator'">{{ record.creator }} - {{ record.creator_name }}</template>
       </template>
@@ -118,6 +116,29 @@ import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 
 use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent, UniversalTransition])
+
+const taskResultsStatusText = (record) => {
+  if (record.result) {
+    if (record.result.status) {
+      return '成功'
+    } else if (record.result.status === false) {
+      return '失败'
+    }
+  } else {
+    return '未知'
+  }
+}
+const taskResultsStatusColor = (record) => {
+  if (record.result) {
+    if (record.result.status) {
+      return 'success'
+    } else if (record.result.status === false) {
+      return 'error'
+    }
+  } else {
+    return 'processing'
+  }
+}
 
 const route = useRoute()
 const router = useRouter()
