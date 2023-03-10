@@ -154,7 +154,7 @@ const columns = [
     title: '任务ID',
     dataIndex: 'task_uuid',
     key: 'task_uuid',
-    width: 250,
+    width: 270,
     fixed: 'left'
   },
   {

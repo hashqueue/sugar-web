@@ -86,6 +86,10 @@
           <a-tag color="red" v-if="record.device_status === 0">{{ status[record.device_status] }}</a-tag>
           <a-tag color="green" v-else>{{ status[record.device_status] }}</a-tag>
         </template>
+        <template v-else-if="column.key === 'is_deployed_agent'">
+          <a-tag color="green" v-if="record.is_deployed_agent">运行中</a-tag>
+          <a-tag color="red" v-else>未部署</a-tag>
+        </template>
       </template>
     </standard-table>
     <a-drawer v-model:visible="deviceAliveLogVisible" width="45%">
@@ -247,6 +251,12 @@ const columns = [
     title: '设备状态',
     dataIndex: 'device_status',
     key: 'device_status',
+    width: 100
+  },
+  {
+    title: 'agent状态',
+    dataIndex: 'is_deployed_agent',
+    key: 'is_deployed_agent',
     width: 100
   },
   {
