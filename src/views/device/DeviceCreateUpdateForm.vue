@@ -9,6 +9,11 @@
     @on-modal-cancel="onCancel"
   >
     <template #form>
+      <a-alert
+        message="提交后设备密码会被加密，所以页面显示的密码其实是加密后的字符串."
+        type="success"
+        style="margin-bottom: 30px"
+      />
       <a-form
         ref="createUpdateFormRef"
         :model="createUpdateForm"
