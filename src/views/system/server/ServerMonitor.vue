@@ -1,21 +1,30 @@
 <template>
-  <v-chart class="chart" :option="cpuOption" />
-  <v-chart class="chart" :option="memoryOption" />
-  <v-chart class="chart" :option="diskOption" />
+  <a-card class="data-card" title="CPU">
+    <v-chart class="chart" :option="cpuOption" />
+  </a-card>
+  <a-card class="data-card" title="Memory">
+    <v-chart class="chart" :option="memoryOption" />
+  </a-card>
+  <a-card class="data-card" title="Disk">
+    <v-chart class="chart" :option="diskOption" />
+  </a-card>
 </template>
 
 <script setup>
-import { ref, provide, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { use } from 'echarts/core'
 import { message } from 'ant-design-vue'
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
 import { UniversalTransition } from 'echarts/features'
 import { LineChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
-import VChart, { THEME_KEY } from 'vue-echarts'
+import VChart from 'vue-echarts'
+
+// import { ref, provide, onMounted, onUnmounted } from 'vue'
+// import VChart, { THEME_KEY } from 'vue-echarts'
 
 use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent, UniversalTransition])
-provide(THEME_KEY, 'dark')
+// provide(THEME_KEY, 'dark')
 let wsPublishInterval
 const webSocket = new WebSocket(`ws://${location.host}${import.meta.env.VITE_WS_BASE_URL}/server/get-performance-data/`)
 const date = ref([])
@@ -208,6 +217,8 @@ onUnmounted(() => {
 .chart {
   width: 100%;
   height: 500px;
+}
+.data-card {
   margin-bottom: 20px;
 }
 </style>

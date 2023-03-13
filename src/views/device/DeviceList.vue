@@ -340,6 +340,7 @@ const resetFilterForm = () => {
 }
 
 const getDeviceListData = () => {
+  tableLoading.value = true
   getDeviceList(deviceQueryParams.value).then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -350,6 +351,7 @@ const getDeviceListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getDeviceListData()

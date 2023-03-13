@@ -84,6 +84,7 @@ const columns = [
 ]
 
 const getUserListData = () => {
+  tableLoading.value = true
   getUserList().then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -94,6 +95,7 @@ const getUserListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getUserListData()

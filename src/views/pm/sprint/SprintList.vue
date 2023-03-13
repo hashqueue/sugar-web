@@ -263,6 +263,7 @@ getProjectMembers(props.projectId).then((res) => {
 })
 
 const getSprintListData = () => {
+  tableLoading.value = true
   getSprintList(sprintQueryParams.value).then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -273,6 +274,7 @@ const getSprintListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getSprintListData()

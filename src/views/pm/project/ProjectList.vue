@@ -156,6 +156,7 @@ getAllUserList().then((res) => {
 })
 
 const getProjectListData = () => {
+  tableLoading.value = true
   getProjectList().then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -166,6 +167,7 @@ const getProjectListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getProjectListData()

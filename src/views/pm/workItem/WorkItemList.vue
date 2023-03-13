@@ -331,6 +331,7 @@ getSprintDetail(props.sprintId).then((res) => {
 })
 
 const getWorkItemListData = () => {
+  tableLoading.value = true
   getWorkItemList(workItemQueryParams.value).then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -341,6 +342,7 @@ const getWorkItemListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getWorkItemListData()

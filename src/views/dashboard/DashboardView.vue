@@ -1,41 +1,43 @@
 <template>
-  <a-row justify="space-between">
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="项目数量" :value="userStatisticsData.project_count" />
-      </a-card>
-    </a-col>
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="迭代数量" :value="userStatisticsData.sprint_count" />
-      </a-card>
-    </a-col>
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="需求数量" :value="userStatisticsData.feature_count" />
-      </a-card>
-    </a-col>
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="任务数量" :value="userStatisticsData.task_count" />
-      </a-card>
-    </a-col>
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="缺陷数量" :value="userStatisticsData.bug_count" />
-      </a-card>
-    </a-col>
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="角色数量" :value="userStatisticsData.role_count" />
-      </a-card>
-    </a-col>
-    <a-col :span="3">
-      <a-card class="statistic-card">
-        <a-statistic title="权限数量" :value="userStatisticsData.permission_count" />
-      </a-card>
-    </a-col>
-  </a-row>
+  <a-skeleton :loading="skeletonLoading" active>
+    <a-row justify="space-between">
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="项目数量" :value="userStatisticsData.project_count" />
+        </a-card>
+      </a-col>
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="迭代数量" :value="userStatisticsData.sprint_count" />
+        </a-card>
+      </a-col>
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="需求数量" :value="userStatisticsData.feature_count" />
+        </a-card>
+      </a-col>
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="任务数量" :value="userStatisticsData.task_count" />
+        </a-card>
+      </a-col>
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="缺陷数量" :value="userStatisticsData.bug_count" />
+        </a-card>
+      </a-col>
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="角色数量" :value="userStatisticsData.role_count" />
+        </a-card>
+      </a-col>
+      <a-col :span="3">
+        <a-card class="statistic-card">
+          <a-statistic title="权限数量" :value="userStatisticsData.permission_count" />
+        </a-card>
+      </a-col>
+    </a-row>
+  </a-skeleton>
   <a-row type="flex" justify="space-between">
     <a-col :span="12">
       <a-card class="card">
@@ -106,8 +108,10 @@ const userStatisticsData = ref({
   bug_count: null,
   feature_count: null
 })
-getUserStatistics(1).then((res) => {
+const skeletonLoading = ref(true)
+getUserStatistics().then((res) => {
   userStatisticsData.value = res
+  skeletonLoading.value = false
 })
 const pieOption = {
   title: {

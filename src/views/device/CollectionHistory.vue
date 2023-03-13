@@ -74,30 +74,38 @@
     </standard-table>
   </a-card>
   <a-drawer v-model:visible="perfDataDetailVisible" :title="perfDataDetailDrawerTitle" height="85%" placement="bottom">
-    <a-card :title="route.query.deviceHost">
-      <a-descriptions title="主机信息">
-        <a-descriptions-item label="Host">{{ route.query.deviceHost }}</a-descriptions-item>
-        <a-descriptions-item label="主机名">{{ deviceInfo.hostInfo.hostname }}</a-descriptions-item>
-        <a-descriptions-item label="OS">{{ deviceInfo.hostInfo.os }}</a-descriptions-item>
-        <a-descriptions-item label="OS平台">{{ deviceInfo.hostInfo.platform }}</a-descriptions-item>
-        <a-descriptions-item label="OS平台版本">{{ deviceInfo.hostInfo.platformVersion }}</a-descriptions-item>
-        <a-descriptions-item label="OS平台所属系列">{{ deviceInfo.hostInfo.platformFamily }}</a-descriptions-item>
-        <a-descriptions-item label="内核架构">{{ deviceInfo.hostInfo.kernelArch }}</a-descriptions-item>
-        <a-descriptions-item label="内核版本">{{ deviceInfo.hostInfo.kernelVersion }}</a-descriptions-item>
-        <a-descriptions-item label="已运行时间">{{ deviceInfo.hostInfo.uptime }}</a-descriptions-item>
-        <a-descriptions-item label="CPU型号">{{ deviceInfo.cpuInfo.modelName }}</a-descriptions-item>
-        <a-descriptions-item label="物理CPU个数">{{ deviceInfo.cpuInfo.physicalCoresCount }}</a-descriptions-item>
-        <a-descriptions-item label="逻辑CPU个数">{{ deviceInfo.cpuInfo.logicalCoresCount }}</a-descriptions-item>
-      </a-descriptions>
-      <a-divider />
-      <v-chart class="chart" :option="cpuOption" />
-      <a-divider />
-      <v-chart class="chart" :option="loadOption" />
-      <a-divider />
-      <v-chart class="chart" :option="memOption" />
-      <a-divider />
-      <v-chart class="chart" :option="diskOption" />
-    </a-card>
+    <a-skeleton :loading="skeletonLoading" active>
+      <a-card :title="route.query.deviceHost">
+        <a-descriptions title="任务信息">
+          <a-descriptions-item label="任务ID">{{ taskInfo.metadata.task_uuid }}</a-descriptions-item>
+          <a-descriptions-item label="采集次数(次)">{{ taskInfo.metadata.task_config.count }}</a-descriptions-item>
+          <a-descriptions-item label="间隔时间(秒)">{{ taskInfo.metadata.task_config.intervals }}</a-descriptions-item>
+        </a-descriptions>
+        <a-divider />
+        <a-descriptions title="主机信息">
+          <a-descriptions-item label="Host">{{ route.query.deviceHost }}</a-descriptions-item>
+          <a-descriptions-item label="主机名">{{ deviceInfo.hostInfo.hostname }}</a-descriptions-item>
+          <a-descriptions-item label="OS">{{ deviceInfo.hostInfo.os }}</a-descriptions-item>
+          <a-descriptions-item label="OS平台">{{ deviceInfo.hostInfo.platform }}</a-descriptions-item>
+          <a-descriptions-item label="OS平台版本">{{ deviceInfo.hostInfo.platformVersion }}</a-descriptions-item>
+          <a-descriptions-item label="OS平台所属系列">{{ deviceInfo.hostInfo.platformFamily }}</a-descriptions-item>
+          <a-descriptions-item label="内核架构">{{ deviceInfo.hostInfo.kernelArch }}</a-descriptions-item>
+          <a-descriptions-item label="内核版本">{{ deviceInfo.hostInfo.kernelVersion }}</a-descriptions-item>
+          <a-descriptions-item label="已运行时间">{{ deviceInfo.hostInfo.uptime }}</a-descriptions-item>
+          <a-descriptions-item label="CPU型号">{{ deviceInfo.cpuInfo.modelName }}</a-descriptions-item>
+          <a-descriptions-item label="物理CPU个数">{{ deviceInfo.cpuInfo.physicalCoresCount }}</a-descriptions-item>
+          <a-descriptions-item label="逻辑CPU个数">{{ deviceInfo.cpuInfo.logicalCoresCount }}</a-descriptions-item>
+        </a-descriptions>
+        <a-divider />
+        <v-chart class="chart" :option="cpuOption" />
+        <a-divider />
+        <v-chart class="chart" :option="loadOption" />
+        <a-divider />
+        <v-chart class="chart" :option="memOption" />
+        <a-divider />
+        <v-chart class="chart" :option="diskOption" />
+      </a-card>
+    </a-skeleton>
   </a-drawer>
 </template>
 
@@ -144,9 +152,11 @@ const route = useRoute()
 const router = useRouter()
 const devicePerfData = ref([])
 const deviceInfo = ref({})
+const taskInfo = ref({})
 const dataList = ref([])
 const tableLoading = ref(false)
 const perfDataDetailVisible = ref(false)
+const skeletonLoading = ref(false)
 const perfDataDetailDrawerTitle = ref('')
 const paginationData = ref({})
 const columns = [
@@ -503,6 +513,7 @@ const resetFilterForm = () => {
   getTaskResultListData()
 }
 const getTaskResultListData = () => {
+  tableLoading.value = true
   getTaskResultList(taskResultQueryParams.value).then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -513,6 +524,7 @@ const getTaskResultListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getTaskResultListData()
@@ -565,10 +577,13 @@ const returnToDeviceList = () => {
   router.push({ name: '/dm/devices/list' })
 }
 const getPerfDataDetail = (record) => {
+  perfDataDetailVisible.value = true
+  skeletonLoading.value = true
   getTaskResultDetail(record.task_uuid).then((res) => {
-    perfDataDetailVisible.value = true
+    skeletonLoading.value = false
     devicePerfData.value = res.result.data.perfData
     deviceInfo.value = res.result.data.properties
+    taskInfo.value = res.metadata
   })
 }
 </script>
@@ -577,6 +592,5 @@ const getPerfDataDetail = (record) => {
 .chart {
   width: 100%;
   height: 500px;
-  margin-bottom: 20px;
 }
 </style>

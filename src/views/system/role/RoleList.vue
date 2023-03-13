@@ -109,6 +109,7 @@ const columns = [
 ]
 
 const getRoleListData = () => {
+  tableLoading.value = true
   getRoleList().then((res) => {
     dataList.value = res.results
     paginationData.value = {
@@ -119,6 +120,7 @@ const getRoleListData = () => {
       showSizeChanger: true,
       showTotal: () => `共 ${res.count} 条`
     }
+    tableLoading.value = false
   })
 }
 getRoleListData()
