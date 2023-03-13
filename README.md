@@ -1,8 +1,6 @@
 # sugar-web
 
-集项目管理和测试管理于一体的一站式研发管理平台 - developed with Vue3、Ant Design Vue 3 and Vite4.
-
-TODO
+一站式项目研发管理平台 - developed with Vue3、Ant Design Vue 3 and Vite4.
 
 ## Project Setup
 
