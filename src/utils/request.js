@@ -10,7 +10,7 @@ const REQUEST_API_SUCCESS = '请求后端接口成功.'
 
 const service = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 5000
+  timeout: 60000
 })
 
 const redirectToLogin = () => {
