@@ -3,6 +3,7 @@
   <standard-table
     :data-source="dataList"
     :columns="columns"
+    :loading="tableLoading"
     :row-key="'id'"
     :default-expand-all-rows="true"
     :pagination="{ hideOnSinglePage: true }"
@@ -48,12 +49,15 @@ import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
 const visible = ref(false)
+const tableLoading = ref(false)
 const title = ref('新增根组织架构')
 const organizationId = ref(null)
 
 const getOrganizationTreeListData = () => {
+  tableLoading.value = true
   getOrganizationTreeList().then((res) => {
     dataList.value = res.results
+    tableLoading.value = false
   })
 }
 getOrganizationTreeListData()

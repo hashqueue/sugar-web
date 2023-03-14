@@ -1,5 +1,4 @@
 <template>
-  <a-button class="add-btn" type="primary" @click="createProject" v-permission="'新增项目'">新增项目</a-button>
   <standard-table
     :data-source="dataList"
     :columns="columns"
@@ -8,6 +7,9 @@
     :pagination="paginationData"
     @on-page-change="onPageChange"
   >
+    <template #tableFilter>
+      <a-button type="primary" @click="createProject" v-permission="'新增项目'">新增项目</a-button>
+    </template>
     <template #action="{ column, record }">
       <template v-if="column.key === 'action'">
         <span>
@@ -52,7 +54,9 @@
       :columns="allUserColumns"
       :pagination="{ hideOnSinglePage: true }"
     ></standard-table>
-    <a-button @click="submitAddMembers" type="primary" v-permission="'修改项目部分信息'">提交</a-button>
+    <a-button style="margin-top: 16px" @click="submitAddMembers" type="primary" v-permission="'修改项目部分信息'"
+      >提交</a-button
+    >
   </a-drawer>
 </template>
 
@@ -234,8 +238,4 @@ const deleteProject = (projectId) => {
 }
 </script>
 
-<style scoped>
-.add-btn {
-  margin-bottom: 16px;
-}
-</style>
+<style scoped></style>

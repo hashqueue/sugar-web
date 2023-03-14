@@ -4,6 +4,7 @@
     :data-source="dataList"
     :columns="columns"
     :scroll="{ x: '100%', y: '100%' }"
+    :loading="tableLoading"
     :row-key="'id'"
     :pagination="{ hideOnSinglePage: true }"
   >
@@ -68,12 +69,15 @@ import StandardTable from '@/components/table/StandardTable.vue'
 
 const dataList = ref([])
 const visible = ref(false)
+const tableLoading = ref(false)
 const title = ref('新增根权限')
 const permissionId = ref(null)
 
 const getPermissionTreeListData = () => {
+  tableLoading.value = true
   getPermissionTreeList().then((res) => {
     dataList.value = res.results
+    tableLoading.value = false
   })
 }
 getPermissionTreeListData()
