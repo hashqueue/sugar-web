@@ -2,9 +2,11 @@
   <a-row type="flex" justify="space-between">
     <a-col :span="20">
       <a-row>
-        <a-col><img class="logo-img" src="@/assets/sugar.svg" alt="logo" /></a-col>
-        <a-col><h1 class="logo-title">Sugar</h1></a-col>
-        <a-col :span="22">
+        <a-row>
+          <a-col><img class="logo-img" src="@/assets/sugar.svg" alt="logo" /></a-col>
+          <a-col><h1 class="logo-title">Sugar</h1></a-col>
+        </a-row>
+        <a-col :span="18">
           <MenuLayout />
         </a-col>
       </a-row>
