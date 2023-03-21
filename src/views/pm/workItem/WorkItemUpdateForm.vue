@@ -140,8 +140,9 @@
                     name="file"
                     :action="userFileUploadUrl"
                     :headers="userFileUploadHeaders"
+                    :file-list="fileList"
                     :data="{ work_item: workItemId }"
-                    :show-upload-list="false"
+                    :show-upload-list="true"
                     @change="handleFileUploadChange"
                   >
                     <a-button><upload-outlined></upload-outlined>上传文件</a-button>
@@ -278,14 +279,14 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
+import axios from 'axios'
+import { message, notification } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { userStore } from '@/stores/user'
 import { updateWorkItem, getWorkItemDetail } from '@/apis/pm/workItem'
 import { updateFileWithPatch, getFileList, deleteFileDetail } from '@/apis/pm/userFile'
 import { createComment, getCommentList, deleteCommentDetail } from '@/apis/pm/comment'
 import { getChangelogList } from '@/apis/pm/changelog'
-import { downloadFile } from '@/utils/common'
 import StandardModal from '@/components/StandardModal.vue'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 import { bugTypeOptions, processResultOptions, statusOptions, priorityOptions, severityOptions } from '@/utils/common'
@@ -343,6 +344,8 @@ const createUpdateRules = {
 }
 const userFileUploadUrl = `http://${location.host}${import.meta.env.VITE_BASE_URL}/pm/files/`
 const userFileUploadHeaders = { Authorization: `Bearer ${userSettingStore.getToken}` }
+const fileList = ref([])
+const progress = ref(0)
 const userFileList = ref([])
 const initLoading = ref(false)
 const userUploadFileIds = ref([])
@@ -432,7 +435,44 @@ const downloadUserFile = (item) => {
   message.info('已经开始下载文件(无文件后缀的文件下载时会被自动添加.txt文件后缀)，请稍等片刻...')
   const originUrlArr = item.file.split('/')
   const url = `http://${location.host}/${originUrlArr.slice(3, originUrlArr.length).join('/')}`
-  downloadFile(url, item.file_name.split('/')[item.file_name.split('/').length - 1])
+  const fileName = item.file_name.split('/')[item.file_name.split('/').length - 1]
+  axios
+    .get(url, {
+      responseType: 'blob',
+      onDownloadProgress: (progressEvent) => {
+        progress.value = Math.floor((progressEvent.loaded / progressEvent.total) * 100)
+        // console.log(progress.value)
+        if (progress.value === 100) {
+          notification['success']({
+            message: '通知',
+            description: `开始下载文件【${fileName}】，当前下载进度为【${progress.value}%】，如果被下载文件无文件名后缀则下载完成后会被自动添加.txt文件名后缀，请稍等片刻...`,
+            placement: 'bottomLeft',
+            duration: null,
+            key: 'fileDownload'
+          })
+          notification.close('fileDownload')
+        } else {
+          notification['info']({
+            message: '通知',
+            description: `开始下载文件【${fileName}】，当前下载进度为【${progress.value}%】，如果被下载文件无文件名后缀则下载完成后会被自动添加.txt文件名后缀，请稍等片刻...`,
+            placement: 'bottomLeft',
+            duration: null,
+            key: 'fileDownload'
+          })
+        }
+      }
+    })
+    .then((res) => {
+      const blob = new Blob([res.data])
+      const tmpLink = document.createElement('a')
+      tmpLink.href = URL.createObjectURL(blob)
+      tmpLink.download = fileName
+      tmpLink.click()
+      // URL.revokeObjectURL(tmpLink.href)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 }
 const previewFile = (url) => {
   window.open(url)
@@ -443,6 +483,8 @@ const deleteFile = (fileId) => {
   })
 }
 const handleFileUploadChange = (info) => {
+  // console.log(info.fileList)
+  fileList.value = info.fileList
   if (info.file.status === 'done') {
     // 文件上传成功
     message.success(`文件 <${info.file.name}> 上传成功.`)
@@ -488,6 +530,7 @@ const onOk = () => {
       updateWorkItem(props.workItemId, values).then(() => {
         emit('getLatestDataList')
         createUpdateFormRef.value.resetFields()
+        fileList.value = []
         emit('closeModal')
         // 将上传的文件跟workItem关联起来
         const formData = new FormData()
@@ -510,6 +553,7 @@ const onOk = () => {
 }
 const onCancel = () => {
   createUpdateFormRef.value.resetFields()
+  fileList.value = []
   emit('closeModal')
   userUploadFileIds.value = []
   contentActiveKey.value = '1'
