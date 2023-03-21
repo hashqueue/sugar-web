@@ -345,7 +345,6 @@ const createUpdateRules = {
 const userFileUploadUrl = `http://${location.host}${import.meta.env.VITE_BASE_URL}/pm/files/`
 const userFileUploadHeaders = { Authorization: `Bearer ${userSettingStore.getToken}` }
 const fileList = ref([])
-const progress = ref(0)
 const userFileList = ref([])
 const initLoading = ref(false)
 const userUploadFileIds = ref([])
@@ -433,6 +432,7 @@ const getUserFileList = () => {
 }
 const downloadUserFile = (item) => {
   message.info('已经开始下载文件(无文件后缀的文件下载时会被自动添加.txt文件后缀)，请稍等片刻...')
+  const notificationKey = `downloadFile${Date.now()}`
   const originUrlArr = item.file.split('/')
   const url = `http://${location.host}/${originUrlArr.slice(3, originUrlArr.length).join('/')}`
   const fileName = item.file_name.split('/')[item.file_name.split('/').length - 1]
@@ -440,24 +440,23 @@ const downloadUserFile = (item) => {
     .get(url, {
       responseType: 'blob',
       onDownloadProgress: (progressEvent) => {
-        progress.value = Math.floor((progressEvent.loaded / progressEvent.total) * 100)
-        // console.log(progress.value)
-        if (progress.value === 100) {
+        const progress = Math.floor((progressEvent.loaded / progressEvent.total) * 100)
+        if (progress === 100) {
           notification['success']({
             message: '通知',
-            description: `开始下载文件【${fileName}】，当前下载进度为【${progress.value}%】，如果被下载文件无文件名后缀则下载完成后会被自动添加.txt文件名后缀，请稍等片刻...`,
+            description: `开始下载文件【${fileName}】，当前下载进度为【${progress}%】，如果被下载文件无文件名后缀则下载完成后会被自动添加.txt文件名后缀，请稍等片刻...`,
             placement: 'bottomLeft',
             duration: null,
-            key: 'fileDownload'
+            key: notificationKey
           })
-          notification.close('fileDownload')
+          notification.close(notificationKey)
         } else {
           notification['info']({
             message: '通知',
-            description: `开始下载文件【${fileName}】，当前下载进度为【${progress.value}%】，如果被下载文件无文件名后缀则下载完成后会被自动添加.txt文件名后缀，请稍等片刻...`,
+            description: `开始下载文件【${fileName}】，当前下载进度为【${progress}%】，如果被下载文件无文件名后缀则下载完成后会被自动添加.txt文件名后缀，请稍等片刻...`,
             placement: 'bottomLeft',
             duration: null,
-            key: 'fileDownload'
+            key: notificationKey
           })
         }
       }
