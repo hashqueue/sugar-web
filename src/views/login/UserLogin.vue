@@ -56,6 +56,15 @@
           </a-form-item>
         </a-form>
       </div>
+      <div class="filings">
+        <span>
+          <a class="filings-item" href="https://beian.miit.gov.cn/" target="_blank">主体备案号：京ICP备19057126号</a>
+        </span>
+        <br />
+        <span>
+          <a class="filings-item" href="https://beian.miit.gov.cn/" target="_blank">网站备案号：京ICP备19057126号-2</a>
+        </span>
+      </div>
     </div>
   </a-spin>
 </template>
@@ -131,6 +140,16 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="less">
+.filings {
+  text-align: center;
+  margin-top: 280px;
+  .filings-item {
+    color: fade(#000, 85%);
+  }
+  :hover .filings-item {
+    color: #1890ff;
+  }
+}
 .base-container {
   display: flex;
   // 元素垂直显示
