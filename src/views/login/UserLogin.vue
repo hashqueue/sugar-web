@@ -142,7 +142,7 @@ onBeforeUnmount(() => {
 <style scoped lang="less">
 .filings {
   text-align: center;
-  margin-top: 280px;
+  margin-top: 150px;
   .filings-item {
     color: fade(#000, 85%);
   }
